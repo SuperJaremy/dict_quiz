@@ -1,0 +1,6 @@
+word,translation,class,definite(noun),plural(noun;adj),neuter(adj),present(verb),past(verb),possessive(pronoun)
+ord,word,NOUN,ordet,ord,,,,
+grön,green,ADJECTIVE,,gröna,grönt,,,
+studera,study,VERB,,,,studerar,studerade,
+inte,not,ADVERB,,,,,,
+hon,she,PRONOUN,,,,,,hennes
