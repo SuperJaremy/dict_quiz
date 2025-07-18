@@ -28,6 +28,7 @@ name = "dict_quiz"
 version = "0.1.0"
 dependencies = [
  "csv",
+ "serde",
 ]
 
 [[package]]
