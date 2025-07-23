@@ -28,25 +28,22 @@ fn get_frist_arg() -> Result<OsString, Box<dyn Error>> {
 }
 
 fn ask_question(word: &Word) -> bool {
-    if let Some(question) = Question::get_question_by_word(word) {
-        println!("{}", question.get_base());
-        println!("{}", question.get_question());
+    let question = Question::get_question_by_word(word);
+    println!("{}", question.get_base());
+    println!("{}", question.get_question());
 
-        let mut answer = String::new();
-        loop {
-            match io::stdin().read_line(&mut answer) {
-                Ok(_) => break,
-                Err(_) => {
-                    println!("Try again");
-                    answer.clear();
-                }
+    let mut answer = String::new();
+    loop {
+        match io::stdin().read_line(&mut answer) {
+            Ok(_) => break,
+            Err(_) => {
+                println!("Try again");
+                answer.clear();
             }
         }
-        question.get_answer() == answer.trim().to_lowercase()
-    } else {
-        println!("No questions");
-        true
     }
+
+    question.get_answer() == answer.trim().to_lowercase()
 }
 
 fn main() {
