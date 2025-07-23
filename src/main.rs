@@ -1,3 +1,5 @@
+use word::question::Question;
+
 use crate::word::Word;
 use std::{env, error::Error, ffi::OsString, io, process};
 
@@ -9,7 +11,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     let dict = word_csv::read_csv(dict)?;
 
     for w in &dict {
-        if ask_translation(w) {
+        if ask_question(w) {
             println!("✅Correct!");
         } else {
             println!("❌Incorrect");
@@ -25,23 +27,26 @@ fn get_frist_arg() -> Result<OsString, Box<dyn Error>> {
     }
 }
 
-fn ask_translation(word: &Word) -> bool {
-    println!("{}", word.get_word());
-    println!("Translate this word in English");
+fn ask_question(word: &Word) -> bool {
+    if let Some(question) = Question::get_question_by_word(word) {
+        println!("{}", question.get_base());
+        println!("{}", question.get_question());
 
-    let mut answer = String::new();
-
-    loop {
-        match io::stdin().read_line(&mut answer) {
-            Ok(_) => break,
-            Err(_) => {
-                println!("Try again");
-                answer.clear();
+        let mut answer = String::new();
+        loop {
+            match io::stdin().read_line(&mut answer) {
+                Ok(_) => break,
+                Err(_) => {
+                    println!("Try again");
+                    answer.clear();
+                }
             }
         }
+        question.get_answer() == answer.trim().to_lowercase()
+    } else {
+        println!("No questions");
+        true
     }
-
-    word.get_translation() == answer.trim().to_lowercase()
 }
 
 fn main() {
