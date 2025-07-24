@@ -1,37 +1,45 @@
 pub mod question;
 pub mod word_csv;
 
+#[derive(PartialEq, Debug)]
 pub struct NounSpecific {
     definite: String,
     plural: String,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct AdjectiveSpecific {
     neuter: String,
     plural: String,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct VerbSpecific {
     present: String,
     past: String,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct AdverbSpecific;
 
+#[derive(PartialEq, Debug)]
 pub struct PronounSpecific {
     possessive: String,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct WordGeneral {
     word: String,
     translation: String,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct WordForms<T> {
     general: WordGeneral,
     specific: T,
 }
 
+#[derive(PartialEq, Debug)]
 pub enum Word {
     NOUN(WordForms<NounSpecific>),
     ADJECTIVE(WordForms<AdjectiveSpecific>),
