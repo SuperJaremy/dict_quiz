@@ -1,6 +1,6 @@
 use std::{error::Error, ffi::OsString};
 
-use crate::word::Word;
+use super::Word;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]

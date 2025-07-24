@@ -1,10 +1,9 @@
-use word::question::Question;
+use word::{question::Question, word_csv};
 
 use crate::word::Word;
 use std::{env, error::Error, ffi::OsString, io, process};
 
 pub mod word;
-pub mod word_csv;
 
 fn run() -> Result<(), Box<dyn Error>> {
     let dict = get_frist_arg()?;

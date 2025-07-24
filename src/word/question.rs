@@ -197,34 +197,29 @@ impl<T> QuestionTemplate<'_, T> {
             answer: String::from((self.answer)(forms)),
         }
     }
-
-    fn pick_question<'a>(arr: &'a [QuestionTemplate<T>]) -> &'a QuestionTemplate<'a, T> {
-        let rand = rand::rng().random_range(0..arr.len());
-        &arr[rand]
-    }
 }
 
 impl Question {
     pub fn get_question_by_word(word: &Word) -> Question {
         match word {
             Word::NOUN(noun) => {
-                let template = QuestionTemplate::pick_question(&NOUN_QUESTIONS);
+                let template = pick_question(&NOUN_QUESTIONS);
                 template.question_from_template(noun)
             }
             Word::ADJECTIVE(adj) => {
-                let template = QuestionTemplate::pick_question(&ADJECTIVE_QUESTIONS);
+                let template = pick_question(&ADJECTIVE_QUESTIONS);
                 template.question_from_template(adj)
             }
             Word::VERB(verb) => {
-                let template = QuestionTemplate::pick_question(&VERB_QUESTIONS);
+                let template = pick_question(&VERB_QUESTIONS);
                 template.question_from_template(verb)
             }
             Word::PRONOUN(pr) => {
-                let template = QuestionTemplate::pick_question(&PRONOUN_QUESTIONS);
+                let template = pick_question(&PRONOUN_QUESTIONS);
                 template.question_from_template(pr)
             }
             Word::ADVERB(adv) => {
-                let template = QuestionTemplate::pick_question(&ADVERB_QUESTIONS);
+                let template = pick_question(&ADVERB_QUESTIONS);
                 template.question_from_template(adv)
             }
         }
@@ -241,4 +236,9 @@ impl Question {
     pub fn get_answer(&self) -> &str {
         &self.answer
     }
+}
+
+fn pick_question<'a, T>(arr: &'a [QuestionTemplate<T>]) -> &'a QuestionTemplate<'a, T> {
+    let rand = rand::rng().random_range(0..arr.len());
+    &arr[rand]
 }

@@ -1,4 +1,5 @@
 pub mod question;
+pub mod word_csv;
 
 pub struct NounSpecific {
     definite: String,
@@ -40,7 +41,7 @@ pub enum Word {
 }
 
 impl Word {
-    pub fn new_noun(word: String, translation: String, definite: String, plural: String) -> Word {
+    fn new_noun(word: String, translation: String, definite: String, plural: String) -> Word {
         Word::NOUN(WordForms {
             general: WordGeneral {
                 word: word,
@@ -53,12 +54,7 @@ impl Word {
         })
     }
 
-    pub fn new_adjective(
-        word: String,
-        translation: String,
-        neuter: String,
-        plural: String,
-    ) -> Word {
+    fn new_adjective(word: String, translation: String, neuter: String, plural: String) -> Word {
         Word::ADJECTIVE(WordForms {
             general: WordGeneral {
                 word: word,
@@ -71,7 +67,7 @@ impl Word {
         })
     }
 
-    pub fn new_verb(word: String, translation: String, present: String, past: String) -> Word {
+    fn new_verb(word: String, translation: String, present: String, past: String) -> Word {
         Word::VERB(WordForms {
             general: WordGeneral {
                 word: word,
@@ -84,7 +80,7 @@ impl Word {
         })
     }
 
-    pub fn new_adverb(word: String, translation: String) -> Word {
+    fn new_adverb(word: String, translation: String) -> Word {
         Word::ADVERB(WordForms {
             general: WordGeneral {
                 word: word,
@@ -94,7 +90,7 @@ impl Word {
         })
     }
 
-    pub fn new_pronoun(word: String, translation: String, possessive: String) -> Word {
+    fn new_pronoun(word: String, translation: String, possessive: String) -> Word {
         Word::PRONOUN(WordForms {
             general: WordGeneral {
                 word: word,
@@ -108,47 +104,47 @@ impl Word {
 }
 
 impl<T> WordForms<T> {
-    pub fn get_word(&self) -> &str {
+    fn get_word(&self) -> &str {
         &self.general.word
     }
 
-    pub fn get_translation(&self) -> &str {
+    fn get_translation(&self) -> &str {
         &self.general.translation
     }
 }
 
 impl WordForms<NounSpecific> {
-    pub fn get_plural(&self) -> &str {
+    fn get_plural(&self) -> &str {
         &self.specific.plural
     }
 
-    pub fn get_definite(&self) -> &str {
+    fn get_definite(&self) -> &str {
         &self.specific.definite
     }
 }
 
 impl WordForms<AdjectiveSpecific> {
-    pub fn get_neuter(&self) -> &str {
+    fn get_neuter(&self) -> &str {
         &self.specific.neuter
     }
 
-    pub fn get_plural(&self) -> &str {
+    fn get_plural(&self) -> &str {
         &self.specific.plural
     }
 }
 
 impl WordForms<VerbSpecific> {
-    pub fn get_present(&self) -> &str {
+    fn get_present(&self) -> &str {
         &self.specific.present
     }
 
-    pub fn get_past(&self) -> &str {
+    fn get_past(&self) -> &str {
         &self.specific.past
     }
 }
 
 impl WordForms<PronounSpecific> {
-    pub fn get_possessive(&self) -> &str {
+    fn get_possessive(&self) -> &str {
         &self.specific.possessive
     }
 }
