@@ -1,10 +1,8 @@
-use std::{error::Error, ffi::OsString};
-
 use super::Word;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-struct WordCSV {
+pub struct WordCSV {
     #[serde(rename = "word")]
     word: String,
     #[serde(rename = "translation")]
@@ -25,20 +23,7 @@ struct WordCSV {
     possessive: Option<String>,
 }
 
-pub fn read_csv(dict_path: OsString) -> Result<Vec<Word>, Box<dyn Error>> {
-    let mut rdr = csv::Reader::from_path(dict_path)?;
-    let mut res = Vec::new();
-
-    for result in rdr.deserialize() {
-        let record: WordCSV = result?;
-        let word = word_csv_to_word(record)?;
-        res.push(word);
-    }
-
-    Ok(res)
-}
-
-fn word_csv_to_word(word_csv: WordCSV) -> Result<Word, String> {
+pub fn word_csv_to_word(word_csv: WordCSV) -> Result<Word, &'static str> {
     let class = &word_csv.class;
 
     let word = if class == "NOUN" {
@@ -57,7 +42,7 @@ fn word_csv_to_word(word_csv: WordCSV) -> Result<Word, String> {
 
     match word {
         Some(ret) => Ok(ret),
-        None => Err(String::from("Wrong class")),
+        None => Err("Wrong class"),
     }
 }
 
