@@ -110,7 +110,7 @@ impl Word {
         })
     }
 
-    pub fn get_forms<'a>(&'a self) -> Vec<&'a str> {
+    pub fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
         match self {
             Word::NOUN(noun) => noun.get_forms(),
             Word::ADJECTIVE(adj) => adj.get_forms(),
@@ -140,12 +140,12 @@ impl WordForms<NounSpecific> {
         &self.specific.definite
     }
 
-    fn get_forms<'a>(&'a self) -> Vec<&'a str> {
+    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
         let mut forms = Vec::new();
-        forms.push(&self.general.word[..]);
-        forms.push(&self.general.translation[..]);
-        forms.push(&self.specific.definite[..]);
-        forms.push(&self.specific.plural[..]);
+        forms.push(("Word", &self.general.word[..]));
+        forms.push(("Translation", &self.general.translation[..]));
+        forms.push(("Definite", &self.specific.definite[..]));
+        forms.push(("Plural", &self.specific.plural[..]));
         forms
     }
 }
@@ -159,12 +159,12 @@ impl WordForms<AdjectiveSpecific> {
         &self.specific.plural
     }
 
-    fn get_forms<'a>(&'a self) -> Vec<&'a str> {
+    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
         let mut forms = Vec::new();
-        forms.push(&self.general.word[..]);
-        forms.push(&self.general.translation[..]);
-        forms.push(&self.specific.neuter[..]);
-        forms.push(&self.specific.plural[..]);
+        forms.push(("Word", &self.general.word[..]));
+        forms.push(("Translation", &self.general.translation[..]));
+        forms.push(("Neuter", &self.specific.neuter[..]));
+        forms.push(("Plural", &self.specific.plural[..]));
         forms
     }
 }
@@ -178,12 +178,12 @@ impl WordForms<VerbSpecific> {
         &self.specific.past
     }
 
-    fn get_forms<'a>(&'a self) -> Vec<&'a str> {
+    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
         let mut forms = Vec::new();
-        forms.push(&self.general.word[..]);
-        forms.push(&self.general.translation[..]);
-        forms.push(&self.specific.past[..]);
-        forms.push(&&self.specific.present[..]);
+        forms.push(("Word", &self.general.word[..]));
+        forms.push(("Translation", &self.general.translation[..]));
+        forms.push(("Present", &&self.specific.present[..]));
+        forms.push(("Past", &self.specific.past[..]));
         forms
     }
 }
@@ -193,20 +193,20 @@ impl WordForms<PronounSpecific> {
         &self.specific.possessive
     }
 
-    fn get_forms<'a>(&'a self) -> Vec<&'a str> {
+    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
         let mut forms = Vec::new();
-        forms.push(&self.general.word[..]);
-        forms.push(&self.general.translation[..]);
-        forms.push(&self.specific.possessive[..]);
+        forms.push(("Word", &self.general.word[..]));
+        forms.push(("Translation", &self.general.translation[..]));
+        forms.push(("Possessive", &self.specific.possessive[..]));
         forms
     }
 }
 
 impl WordForms<AdverbSpecific> {
-    fn get_forms<'a>(&'a self) -> Vec<&'a str> {
+    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
         let mut forms = Vec::new();
-        forms.push(&self.general.word[..]);
-        forms.push(&self.general.translation[..]);
+        forms.push(("Word", &self.general.word[..]));
+        forms.push(("Translation", &self.general.translation[..]));
         forms
     }
 }

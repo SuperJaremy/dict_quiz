@@ -1,5 +1,7 @@
 use std::io;
 
+use std::error::Error;
+
 use crate::view::View;
 use crate::word::question::Question;
 use crate::QuizConfig;
@@ -8,16 +10,17 @@ use crate::QuizResults;
 pub struct Console;
 
 impl Console {
-    fn clear_screen() {
-        clearscreen::clear().expect("failed to clear screen");
+    fn clear_screen() -> Result<(), Box<dyn Error>> {
+        clearscreen::clear()?;
+        Ok(())
     }
 
-    fn wait_for_input() {
+    fn wait_for_input() -> Result<(), Box<dyn Error>> {
         println!("Type ENTER to continue");
         let mut buf = String::new();
-        io::stdin()
-            .read_line(&mut buf)
-            .expect("failed to read line");
+        io::stdin().read_line(&mut buf)?;
+
+        Ok(())
     }
 
     pub fn new() -> Console {
@@ -26,15 +29,13 @@ impl Console {
 }
 
 impl View for Console {
-    fn ask_question(&self, question: Question) -> bool {
-        Console::clear_screen();
+    fn ask_question(&self, question: Question) -> Result<bool, Box<dyn Error>> {
+        Console::clear_screen()?;
         println!("Word: {}", question.get_base());
         println!("Question: {}", question.get_question());
 
         let mut answ = String::new();
-        io::stdin()
-            .read_line(&mut answ)
-            .expect("failed to read line");
+        io::stdin().read_line(&mut answ)?;
 
         let res;
         if answ.trim().to_lowercase() != question.get_answer() {
@@ -46,28 +47,37 @@ impl View for Console {
             res = true;
         }
 
-        Console::wait_for_input();
+        Console::wait_for_input()?;
 
-        res
+        Ok(res)
     }
 
-    fn build_config(&self) -> QuizConfig {
-        Console::clear_screen();
+    fn build_config(&self) -> Result<QuizConfig, Box<dyn Error>> {
+        Console::clear_screen()?;
         println!("How many questions you'd like in this quiz?");
 
-        let mut number = String::new();
-        io::stdin()
-            .read_line(&mut number)
-            .expect("failed to read line");
-        let number: usize = number.trim().parse().expect("failed to parse number");
+        let mut number: Option<usize> = None;
 
-        QuizConfig {
-            question_num: number,
+        while number.is_none() {
+            let mut n = String::new();
+            io::stdin().read_line(&mut n)?;
+            let n: usize = match n.trim().parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("Type in a number");
+                    continue;
+                }
+            };
+            number = Some(n);
         }
+
+        Ok(QuizConfig {
+            question_num: number.expect("number is set in the while loop"),
+        })
     }
 
-    fn display_results(&self, results: &QuizResults) {
-        Console::clear_screen();
+    fn display_results(&self, results: &QuizResults) -> Result<(), Box<dyn Error>> {
+        Console::clear_screen()?;
         println!("Your results:");
         let total = results.config.question_num;
         let correct = results.correct_num as usize;
@@ -75,29 +85,27 @@ impl View for Console {
 
         if total == correct {
             println!("Amazing!");
-            return;
         } else {
             println!("You should repeat the following words:");
             for w in &results.wrong_answers {
-                for f in w.get_forms() {
-                    print!("{f} ");
+                for (name, form) in w.get_forms() {
+                    print!("\t{name}: {form};");
                 }
                 println!();
             }
         }
 
-        Console::wait_for_input();
+        Console::wait_for_input()?;
+        Ok(())
     }
 
-    fn try_again(&self) -> bool {
-        Console::clear_screen();
+    fn try_again(&self) -> Result<bool, Box<dyn Error>> {
+        Console::clear_screen()?;
 
         println!("Try again? [y/n]");
         let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .expect("failed to read line");
+        io::stdin().read_line(&mut input)?;
 
-        input.trim().to_lowercase() == "y"
+        Ok(input.trim().to_lowercase() == "y")
     }
 }

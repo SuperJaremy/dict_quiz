@@ -9,12 +9,12 @@ fn get_frist_arg() -> Result<OsString, Box<dyn Error>> {
 
 fn main() {
     let dict = get_frist_arg().unwrap_or_else(|err| {
-        eprintln!("Proble parsing arguments: {err}");
+        eprintln!("Problem parsing arguments: {err}");
         process::exit(1);
     });
 
     if let Err(err) = dict_quiz::run(dict) {
-        eprintln!("{}", err);
+        eprintln!("Application error: {}", err);
         process::exit(1);
     }
 }

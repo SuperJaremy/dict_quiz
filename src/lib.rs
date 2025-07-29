@@ -24,8 +24,10 @@ pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
     let view = Console::new();
 
     loop {
-        let config = view.build_config();
+        let mut config = view.build_config()?;
         let questions_num = cmp::min(dict.len(), config.question_num);
+        config.question_num = questions_num;
+
         let mut rng = SmallRng::from_os_rng();
         let questions = (&dict[..])
             .choose_multiple(&mut rng, questions_num)
@@ -35,7 +37,7 @@ pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
         let mut correct: u32 = 0;
 
         for (w, q) in questions {
-            if view.ask_question(q) {
+            if view.ask_question(q)? {
                 correct += 1;
             } else {
                 wrongs.push(w);
@@ -48,9 +50,9 @@ pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
             wrong_answers: wrongs,
         };
 
-        view.display_results(&result);
+        view.display_results(&result)?;
 
-        if !view.try_again() {
+        if !view.try_again()? {
             break;
         }
     }
