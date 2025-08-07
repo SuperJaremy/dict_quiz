@@ -2,6 +2,7 @@
 name = "dict_quiz"
 version = "0.1.0"
 edition = "2024"
+description = "App to make interactive quizes out of Swedish dictionary."
 
 [dependencies]
 clearscreen = "4.0.2"
