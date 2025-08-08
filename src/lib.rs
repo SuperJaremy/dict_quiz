@@ -64,18 +64,18 @@ fn read_csv(dict_path: OsString) -> Result<Vec<Word>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(dict_path)?;
     let mut res = Vec::new();
 
-    for result in rdr.deserialize() {
+    for (line, result) in rdr.deserialize().enumerate() {
         let record: WordCSV = match result {
             Ok(word) => word,
             Err(_) => {
-                eprintln!("Warning! Incorrect entry in csv file");
+                eprintln!("Warning! Incorrect entry in csv file in line {line}");
                 continue;
             }
         };
         let word = match word_csv::word_csv_to_word(record) {
             Ok(w) => w,
             Err(e) => {
-                eprintln!("Warning! Incorrect entry in csv file, {}", e);
+                eprintln!("Warning! Incorrect entry in csv file in line {line}, {}", e);
                 continue;
             }
         };
