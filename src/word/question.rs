@@ -1,3 +1,5 @@
+//! The collection of all available quiz questions.
+
 use super::{
     AdjectiveSpecific, AdverbSpecific, NounSpecific, PersonalPronounSpecific, VerbSpecific, Word,
     WordForms,
@@ -365,6 +367,7 @@ impl<T> QuestionTemplate<'_, T> {
 }
 
 impl Question {
+    /// Picks a random question that relates to the given word.
     pub fn get_question_by_word(word: &Word) -> Question {
         match word {
             Word::Noun(noun) => {
@@ -390,14 +393,17 @@ impl Question {
         }
     }
 
+    /// Get the question text.
     pub fn get_question(&self) -> &str {
         &self.question
     }
 
+    /// Get the word form this question is based on.
     pub fn get_base(&self) -> &str {
         &self.base
     }
 
+    /// Get the expected word form
     pub fn get_answer(&self) -> &str {
         &self.answer
     }

@@ -1,6 +1,32 @@
+//! Parse csv entry into `dict_quiz::word::Word`.
+//!
+//! # Format
+//! The csv file should comply to the following format:
+//!
+//! `word,translation,class,definite_s(noun),plural(noun;adj),definite_p(noun),neuter(adj),present(verb),past(verb),perfect(verb),object(per_pronoun)`.
+//!
+//! Unrelated fields must be left blank.
+//!
+//! # Supported Word Classes
+//! The choice of class should be based on the word forms of a particular word,
+//! rather than actual classification. Currently supported classes are:
+//! - `NOUN`: word, translation, class, definite_s, plural, definite_p;
+//! - `ADJECTIVE`: word, translation, class, plural, neuter;
+//! - `VERB`: word, translation, class, present, past, perfect;
+//! - `ADVERB`: word, translation, class;
+//! - `PER_PRONOUN`: word, translation, class, object.
+//!
+//! # Examples
+//! - Noun: `ord,word,NOUN,ordet,ord,orden,,,,,`;
+//! - Adjective: `grön,green,ADJECTIVE,,gröna,,grönt,,,,`;
+//! - Verb: `studera,study,VERB,,,,,studerar,studerade,studerat,`;
+//! - Adverb: `inte,not,ADVERB,,,,,,,,`;
+//! - Personal pronoun: `hon,she,PER_PRONOUN,,,,,,,,henne`.
+
 use super::Word;
 use serde::Deserialize;
 
+/// csv representation of `dict_quiz::word::Word`.
 #[derive(Debug, Deserialize)]
 pub struct WordCSV {
     #[serde(rename = "word")]
@@ -26,7 +52,7 @@ pub struct WordCSV {
     #[serde(rename = "object(per_pronoun)")]
     object: Option<String>,
 }
-
+/// Transforms WordCSV to Word
 pub fn word_csv_to_word(word_csv: WordCSV) -> Result<Word, &'static str> {
     let class = &word_csv.class;
 

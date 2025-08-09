@@ -1,3 +1,5 @@
+//! Console-based quiz interface.
+
 use std::io;
 
 use std::error::Error;
@@ -23,6 +25,15 @@ impl Console {
         Ok(())
     }
 
+    /// Creates new interface instance.
+    /// As all the instance work with the same stdin,
+    /// there should be only one active instance.
+    /// #Examples
+    /// ```
+    /// use dict_quiz::console::Console;
+    ///
+    /// let console = Console::new();
+    /// ```
     pub fn new() -> Console {
         Console {}
     }
