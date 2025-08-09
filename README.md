@@ -9,7 +9,7 @@ be it to translate the word, to provide a singualr or plural form, etc. The choi
 of the question, as well as the order of words, is randomized to be more
 engaging.
 
-<a href="https://drive.google.com/uc?export=view&id=14iItmLr1P9g__m2xMj6nsHEupbAeSKgj"><img src="https://drive.google.com/uc?export=view&id=14iItmLr1P9g__m2xMj6nsHEupbAeSKgj" style="width: 500px; max-width: 100%; height: auto" title="Click for the larger version." /></a>
+![quiz presentation](gif/quiz.GIF)
 
 ## Dictionary
 The dictionary is a csv file where the words, which you want to appear in 
