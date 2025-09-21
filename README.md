@@ -11,6 +11,14 @@ engaging.
 
 ![quiz presentation](gif/quiz.GIF)
 
+## Quick start
+### Prerequisites
+- `rustc ~= 1.89.0`
+- `cargo ~= 1.89.0`
+
+## Run
+`$ cargo run --release /path/to/dicitonary`
+
 ## Dictionary
 The dictionary is a csv file where the words, which you want to appear in 
 your quiz, as well as all their forms are listed (see `res/dictionary.csv`).
