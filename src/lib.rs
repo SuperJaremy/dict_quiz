@@ -29,17 +29,15 @@
 //! or transofrm a word from one of its forms to another. The question order
 //! as well as the questions themselves are randomized.
 
+use crate::word::question::Pick;
 use console::Console;
 use rand::prelude::IndexedRandom;
 use view::View;
 
-use crate::word::question::Question;
 use crate::word::word_csv;
 use crate::word::word_csv::WordCSV;
 use std::cmp;
 use std::ffi::OsString;
-
-use crate::word::Word;
 
 use std::error::Error;
 
@@ -64,7 +62,7 @@ pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
         let mut rng = SmallRng::from_os_rng();
         let questions = (&dict[..])
             .choose_multiple(&mut rng, questions_num)
-            .map(|word| (word, Question::get_question_by_word(word)));
+            .map(|word| (word, word.get_question()));
 
         let mut wrongs = Vec::new();
         let mut correct: u32 = 0;
@@ -93,7 +91,7 @@ pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn read_csv(dict_path: OsString) -> Result<Vec<Word>, Box<dyn Error>> {
+fn read_csv(dict_path: OsString) -> Result<Vec<Box<dyn Pick>>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(dict_path)?;
     let mut res = Vec::new();
 
@@ -142,5 +140,5 @@ impl QuizConfig {
 pub struct QuizResults<'a, 'b> {
     config: &'a QuizConfig,
     correct_num: u32,
-    wrong_answers: Vec<&'b Word>,
+    wrong_answers: Vec<&'b Box<dyn Pick>>,
 }

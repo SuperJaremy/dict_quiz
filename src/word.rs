@@ -21,172 +21,103 @@
 pub mod question;
 pub mod word_csv;
 
-/// Noun specific word forms
-#[derive(PartialEq, Debug)]
-pub struct NounSpecific {
+pub trait Forms {
+    fn get_word(&self) -> &str;
+
+    fn get_translation(&self) -> &str;
+
+    fn get_forms(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("Word", self.get_word()),
+            ("Translation", self.get_translation()),
+        ]
+    }
+}
+
+/// All noun word forms
+#[derive(Debug, PartialEq)]
+pub struct Noun {
+    word: String,
+    translation: String,
     definite_singular: String,
     indefinite_plural: String,
     definite_plural: String,
 }
 
-/// Adjective specific word forms
+/// All adjective word forms
 #[derive(PartialEq, Debug)]
-pub struct AdjectiveSpecific {
+pub struct Adjective {
+    word: String,
+    translation: String,
     neuter: String,
     plural: String,
 }
 
-/// Verb specific word forms
+/// All verb word forms
 #[derive(PartialEq, Debug)]
-pub struct VerbSpecific {
+pub struct Verb {
+    word: String,
+    translation: String,
     present: String,
     past: String,
     perfect: String,
 }
 
-/// Adverb specific word forms
+/// All adverb word forms
 #[derive(PartialEq, Debug)]
-pub struct AdverbSpecific;
-
-/// Personal pronoun specific word forms
-#[derive(PartialEq, Debug)]
-pub struct PersonalPronounSpecific {
-    object: String,
-}
-
-/// Word forms present for all classes
-#[derive(PartialEq, Debug)]
-pub struct WordGeneral {
+pub struct Adverb {
     word: String,
     translation: String,
 }
 
-/// All word forms for a word
+/// All personal pronoun word forms
 #[derive(PartialEq, Debug)]
-pub struct WordForms<T> {
-    general: WordGeneral,
-    specific: T,
+pub struct PersonalPronoun {
+    word: String,
+    translation: String,
+    object: String,
 }
 
-/// All existent word classes
-#[derive(PartialEq, Debug)]
-pub enum Word {
-    Noun(WordForms<NounSpecific>),
-    Adjective(WordForms<AdjectiveSpecific>),
-    Verb(WordForms<VerbSpecific>),
-    Adverb(WordForms<AdverbSpecific>),
-    PersonalPronoun(WordForms<PersonalPronounSpecific>),
-}
-
-impl Word {
-    fn new_noun(
+impl Noun {
+    fn new(
         word: String,
         translation: String,
         definite_singular: String,
         indefinite_plural: String,
         definite_plural: String,
-    ) -> Word {
-        Word::Noun(WordForms {
-            general: WordGeneral {
-                word: word,
-                translation: translation,
-            },
-            specific: NounSpecific {
-                definite_singular: definite_singular,
-                indefinite_plural: indefinite_plural,
-                definite_plural: definite_plural,
-            },
-        })
-    }
-
-    fn new_adjective(word: String, translation: String, neuter: String, plural: String) -> Word {
-        Word::Adjective(WordForms {
-            general: WordGeneral {
-                word: word,
-                translation: translation,
-            },
-            specific: AdjectiveSpecific {
-                neuter: neuter,
-                plural: plural,
-            },
-        })
-    }
-
-    fn new_verb(
-        word: String,
-        translation: String,
-        present: String,
-        past: String,
-        perfect: String,
-    ) -> Word {
-        Word::Verb(WordForms {
-            general: WordGeneral {
-                word: word,
-                translation: translation,
-            },
-            specific: VerbSpecific {
-                present: present,
-                past: past,
-                perfect: perfect,
-            },
-        })
-    }
-
-    fn new_adverb(word: String, translation: String) -> Word {
-        Word::Adverb(WordForms {
-            general: WordGeneral {
-                word: word,
-                translation: translation,
-            },
-            specific: AdverbSpecific,
-        })
-    }
-
-    fn new_personal_pronoun(word: String, translation: String, object: String) -> Word {
-        Word::PersonalPronoun(WordForms {
-            general: WordGeneral {
-                word: word,
-                translation: translation,
-            },
-            specific: PersonalPronounSpecific { object: object },
-        })
-    }
-    /// Get vector of tuples `(word_form_name, word_form)`.
-    pub fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
-        match self {
-            Word::Noun(noun) => noun.get_forms(),
-            Word::Adjective(adj) => adj.get_forms(),
-            Word::Verb(verb) => verb.get_forms(),
-            Word::Adverb(adv) => adv.get_forms(),
-            Word::PersonalPronoun(pr) => pr.get_forms(),
+    ) -> Self {
+        Noun {
+            word: word,
+            translation: translation,
+            definite_singular: definite_singular,
+            indefinite_plural: indefinite_plural,
+            definite_plural: definite_plural,
         }
     }
-}
 
-impl<T> WordForms<T> {
-    fn get_word(&self) -> &str {
-        &self.general.word
-    }
-
-    fn get_translation(&self) -> &str {
-        &self.general.translation
-    }
-}
-
-impl WordForms<NounSpecific> {
     fn get_definite_plural(&self) -> &str {
-        &self.specific.definite_plural
+        &self.definite_plural
     }
 
     fn get_definite_singular(&self) -> &str {
-        &self.specific.definite_singular
+        &self.definite_singular
     }
 
     fn get_indefinite_plural(&self) -> &str {
-        &self.specific.indefinite_plural
+        &self.indefinite_plural
+    }
+}
+
+impl Forms for Noun {
+    fn get_word(&self) -> &str {
+        &self.word
     }
 
-    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
+    fn get_translation(&self) -> &str {
+        &self.translation
+    }
+
+    fn get_forms<'a>(&'a self) -> Vec<(&'a str, &'a str)> {
         let mut forms = Vec::new();
         forms.push(("Word", self.get_word()));
         forms.push(("Translation", self.get_translation()));
@@ -197,68 +128,141 @@ impl WordForms<NounSpecific> {
     }
 }
 
-impl WordForms<AdjectiveSpecific> {
+impl Adjective {
+    fn new(word: String, translation: String, neuter: String, plural: String) -> Adjective {
+        Adjective {
+            word: word,
+            translation: translation,
+            neuter: neuter,
+            plural: plural,
+        }
+    }
+
     fn get_neuter(&self) -> &str {
-        &self.specific.neuter
+        &self.neuter
     }
 
     fn get_plural(&self) -> &str {
-        &self.specific.plural
-    }
-
-    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
-        let mut forms = Vec::new();
-        forms.push(("Word", self.get_word()));
-        forms.push(("Translation", self.get_translation()));
-        forms.push(("Neuter", self.get_neuter()));
-        forms.push(("Plural", self.get_plural()));
-        forms
+        &self.plural
     }
 }
 
-impl WordForms<VerbSpecific> {
-    fn get_present(&self) -> &str {
-        &self.specific.present
+impl Forms for Adjective {
+    fn get_word(&self) -> &str {
+        &self.word
     }
 
-    fn get_past(&self) -> &str {
-        &self.specific.past
+    fn get_translation(&self) -> &str {
+        &self.translation
     }
 
-    fn get_perfect(&self) -> &str {
-        &self.specific.perfect
-    }
-
-    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
-        let mut forms = Vec::new();
-        forms.push(("Word", self.get_word()));
-        forms.push(("Translation", self.get_translation()));
-        forms.push(("Present", self.get_present()));
-        forms.push(("Past", self.get_past()));
-        forms.push(("Perfecct", self.get_perfect()));
-        forms
+    fn get_forms(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("Word", self.get_word()),
+            ("Translation", self.get_translation()),
+            ("Neuter", self.get_neuter()),
+            ("Plural", self.get_plural()),
+        ]
     }
 }
 
-impl WordForms<PersonalPronounSpecific> {
+impl Verb {
+    pub fn new(
+        word: String,
+        translation: String,
+        present: String,
+        past: String,
+        perfect: String,
+    ) -> Verb {
+        Verb {
+            word: word,
+            translation: translation,
+            present: present,
+            past: past,
+            perfect: perfect,
+        }
+    }
+
+    pub fn get_present(&self) -> &str {
+        &self.present
+    }
+
+    pub fn get_past(&self) -> &str {
+        &self.past
+    }
+
+    pub fn get_perfect(&self) -> &str {
+        &self.perfect
+    }
+}
+
+impl Forms for Verb {
+    fn get_word(&self) -> &str {
+        &self.word
+    }
+
+    fn get_translation(&self) -> &str {
+        &self.translation
+    }
+
+    fn get_forms(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("Word", self.get_word()),
+            ("Translation", self.get_translation()),
+            ("Present", self.get_present()),
+            ("Past", self.get_past()),
+            ("Perfect", self.get_perfect()),
+        ]
+    }
+}
+
+impl Adverb {
+    fn new(word: String, translation: String) -> Adverb {
+        Adverb {
+            word: word,
+            translation: translation,
+        }
+    }
+}
+
+impl Forms for Adverb {
+    fn get_word(&self) -> &str {
+        &self.word
+    }
+
+    fn get_translation(&self) -> &str {
+        &self.translation
+    }
+}
+
+impl PersonalPronoun {
+    fn new(word: String, translation: String, object: String) -> PersonalPronoun {
+        PersonalPronoun {
+            word: word,
+            translation: translation,
+            object: object,
+        }
+    }
+
     fn get_object(&self) -> &str {
-        &self.specific.object
-    }
-
-    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
-        let mut forms = Vec::new();
-        forms.push(("Word", self.get_word()));
-        forms.push(("Translation", self.get_translation()));
-        forms.push(("Object", self.get_object()));
-        forms
+        &self.object
     }
 }
 
-impl WordForms<AdverbSpecific> {
-    fn get_forms<'a>(&'a self) -> Vec<(&'static str, &'a str)> {
-        let mut forms = Vec::new();
-        forms.push(("Word", &self.general.word[..]));
-        forms.push(("Translation", &self.general.translation[..]));
-        forms
+impl Forms for PersonalPronoun {
+    fn get_word(&self) -> &str {
+        &self.word
+    }
+
+    fn get_translation(&self) -> &str {
+        &self.translation
+    }
+
+    fn get_forms(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("Word", self.get_word()),
+            ("Translation", self.get_translation()),
+            ("Object", self.get_object()),
+        ]
     }
 }

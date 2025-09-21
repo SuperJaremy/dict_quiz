@@ -1,40 +1,37 @@
 //! The collection of all available quiz questions.
 
-use super::{
-    AdjectiveSpecific, AdverbSpecific, NounSpecific, PersonalPronounSpecific, VerbSpecific, Word,
-    WordForms,
-};
-use rand::Rng;
+use super::{Adjective, Adverb, Forms, Noun, PersonalPronoun, Verb};
+use rand::seq::IndexedRandom;
 
 const TRANSLATION_QUESTION_E: &str = "Translate this word in English";
 const TRANSLATION_QUESTION_S: &str = "Translate this word in Swedish";
 const BASE_QUESTION: &str = "Write down the base form of this word";
 
-const NOUN_TRANSLATION_QUESTION_E: QuestionTemplate<NounSpecific> = QuestionTemplate {
+const NOUN_TRANSLATION_QUESTION_E: QuestionTemplate<Noun> = QuestionTemplate {
     question: TRANSLATION_QUESTION_E,
-    base: |word_forms| word_forms.get_word(),
-    answer: |word_forms| word_forms.get_translation(),
+    base: |noun| noun.get_word(),
+    answer: |noun| noun.get_translation(),
 };
 
-const NOUN_TRANSLATION_QUESTION_S: QuestionTemplate<NounSpecific> = QuestionTemplate {
+const NOUN_TRANSLATION_QUESTION_S: QuestionTemplate<Noun> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const NOUN_BASE_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<NounSpecific> = QuestionTemplate {
+const NOUN_BASE_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_indefinite_plural(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const NOUN_BASE_QUESTION_DEFINITE_PLURAL: QuestionTemplate<NounSpecific> = QuestionTemplate {
+const NOUN_BASE_QUESTION_DEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_definite_plural(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const NOUN_BASE_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<NounSpecific> = QuestionTemplate {
+const NOUN_BASE_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<Noun> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_definite_singular(),
     answer: |word_forms| word_forms.get_word(),
@@ -42,71 +39,67 @@ const NOUN_BASE_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<NounSpecific> = Que
 
 const NOUN_INDEFINITE_PLURAL_QUESTION: &str = "Write down the indefinite plural form of this word";
 
-const NOUN_INDEFINITE_PLURAL_QUESTION_BASE: QuestionTemplate<NounSpecific> = QuestionTemplate {
+const NOUN_INDEFINITE_PLURAL_QUESTION_BASE: QuestionTemplate<Noun> = QuestionTemplate {
     question: NOUN_INDEFINITE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_indefinite_plural(),
 };
 
-const NOUN_INDEFINITE_PLURAL_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<NounSpecific> =
+const NOUN_INDEFINITE_PLURAL_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<Noun> =
     QuestionTemplate {
         question: NOUN_INDEFINITE_PLURAL_QUESTION,
         base: |word_forms| word_forms.get_definite_singular(),
         answer: |word_forms| word_forms.get_indefinite_plural(),
     };
 
-const NOUN_INDEFINITE_PLURAL_QUESTION_DEFINITE_PLURAL: QuestionTemplate<NounSpecific> =
-    QuestionTemplate {
-        question: NOUN_INDEFINITE_PLURAL_QUESTION,
-        base: |word_forms| word_forms.get_definite_plural(),
-        answer: |word_forms| word_forms.get_indefinite_plural(),
-    };
+const NOUN_INDEFINITE_PLURAL_QUESTION_DEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
+    question: NOUN_INDEFINITE_PLURAL_QUESTION,
+    base: |word_forms| word_forms.get_definite_plural(),
+    answer: |word_forms| word_forms.get_indefinite_plural(),
+};
 
 const NOUN_DEFINITE_SINGULAR_QUESTION: &str = "Write down the definite singular form of this word";
 
-const NOUN_DEFINITE_SINGULAR_QUESTION_BASE: QuestionTemplate<NounSpecific> = QuestionTemplate {
+const NOUN_DEFINITE_SINGULAR_QUESTION_BASE: QuestionTemplate<Noun> = QuestionTemplate {
     question: NOUN_DEFINITE_SINGULAR_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_definite_singular(),
 };
 
-const NOUN_DEFINITE_SINGULAR_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<NounSpecific> =
+const NOUN_DEFINITE_SINGULAR_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<Noun> =
     QuestionTemplate {
         question: NOUN_DEFINITE_SINGULAR_QUESTION,
         base: |word_forms| word_forms.get_indefinite_plural(),
         answer: |word_forms| word_forms.get_definite_singular(),
     };
 
-const NOUN_DEFINITE_SINGULAR_QUESTION_DEFINITE_PLURAL: QuestionTemplate<NounSpecific> =
-    QuestionTemplate {
-        question: NOUN_DEFINITE_SINGULAR_QUESTION,
-        base: |word_forms| word_forms.get_definite_plural(),
-        answer: |word_forms| word_forms.get_definite_singular(),
-    };
+const NOUN_DEFINITE_SINGULAR_QUESTION_DEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
+    question: NOUN_DEFINITE_SINGULAR_QUESTION,
+    base: |word_forms| word_forms.get_definite_plural(),
+    answer: |word_forms| word_forms.get_definite_singular(),
+};
 
 const NOUN_DEFINITE_PLURAL_QUESTION: &str = "Write down the definite plural form of this word";
 
-const NOUN_DEFINITE_PLURAL_QUESTION_BASE: QuestionTemplate<NounSpecific> = QuestionTemplate {
+const NOUN_DEFINITE_PLURAL_QUESTION_BASE: QuestionTemplate<Noun> = QuestionTemplate {
     question: NOUN_DEFINITE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_definite_plural(),
 };
 
-const NOUN_DEFINITE_PLURAL_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<NounSpecific> =
-    QuestionTemplate {
-        question: NOUN_DEFINITE_PLURAL_QUESTION,
-        base: |word_forms| word_forms.get_indefinite_plural(),
-        answer: |word_forms| word_forms.get_definite_plural(),
-    };
+const NOUN_DEFINITE_PLURAL_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
+    question: NOUN_DEFINITE_PLURAL_QUESTION,
+    base: |word_forms| word_forms.get_indefinite_plural(),
+    answer: |word_forms| word_forms.get_definite_plural(),
+};
 
-const NOUN_DEFINITE_PLURAL_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<NounSpecific> =
-    QuestionTemplate {
-        question: NOUN_DEFINITE_PLURAL_QUESTION,
-        base: |word_forms| word_forms.get_definite_singular(),
-        answer: |word_forms| word_forms.get_definite_plural(),
-    };
+const NOUN_DEFINITE_PLURAL_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<Noun> = QuestionTemplate {
+    question: NOUN_DEFINITE_PLURAL_QUESTION,
+    base: |word_forms| word_forms.get_definite_singular(),
+    answer: |word_forms| word_forms.get_definite_plural(),
+};
 
-const NOUN_QUESTIONS: [QuestionTemplate<NounSpecific>; 14] = [
+const NOUN_QUESTIONS: [QuestionTemplate<Noun>; 14] = [
     NOUN_TRANSLATION_QUESTION_E,
     NOUN_TRANSLATION_QUESTION_S,
     NOUN_BASE_QUESTION_DEFINITE_PLURAL,
@@ -123,25 +116,25 @@ const NOUN_QUESTIONS: [QuestionTemplate<NounSpecific>; 14] = [
     NOUN_INDEFINITE_PLURAL_QUESTION_DEFINITE_SINGULAR,
 ];
 
-const ADJECTIVE_TRANSLATION_QUESTION_E: QuestionTemplate<AdjectiveSpecific> = QuestionTemplate {
+const ADJECTIVE_TRANSLATION_QUESTION_E: QuestionTemplate<Adjective> = QuestionTemplate {
     question: TRANSLATION_QUESTION_E,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_translation(),
 };
 
-const ADJECTIVE_TRANSLATION_QUESTION_S: QuestionTemplate<AdjectiveSpecific> = QuestionTemplate {
+const ADJECTIVE_TRANSLATION_QUESTION_S: QuestionTemplate<Adjective> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const ADJECTIVE_BASE_QUESTION_NEUTER: QuestionTemplate<AdjectiveSpecific> = QuestionTemplate {
+const ADJECTIVE_BASE_QUESTION_NEUTER: QuestionTemplate<Adjective> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_neuter(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const ADJECTIVE_BASE_QUESTION_PLURAL: QuestionTemplate<AdjectiveSpecific> = QuestionTemplate {
+const ADJECTIVE_BASE_QUESTION_PLURAL: QuestionTemplate<Adjective> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_plural(),
     answer: |word_forms| word_forms.get_word(),
@@ -149,13 +142,13 @@ const ADJECTIVE_BASE_QUESTION_PLURAL: QuestionTemplate<AdjectiveSpecific> = Ques
 
 const ADJECTIVE_NEUTER_QUESTION: &str = "Write down the neuter form of this word";
 
-const ADJECTIVE_NEUTER_QUESTION_BASE: QuestionTemplate<AdjectiveSpecific> = QuestionTemplate {
+const ADJECTIVE_NEUTER_QUESTION_BASE: QuestionTemplate<Adjective> = QuestionTemplate {
     question: ADJECTIVE_NEUTER_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_neuter(),
 };
 
-const ADJECTIVE_NEUTER_QUESTION_PLURAL: QuestionTemplate<AdjectiveSpecific> = QuestionTemplate {
+const ADJECTIVE_NEUTER_QUESTION_PLURAL: QuestionTemplate<Adjective> = QuestionTemplate {
     question: ADJECTIVE_NEUTER_QUESTION,
     base: |word_forms| word_forms.get_plural(),
     answer: |word_forms| word_forms.get_neuter(),
@@ -163,19 +156,19 @@ const ADJECTIVE_NEUTER_QUESTION_PLURAL: QuestionTemplate<AdjectiveSpecific> = Qu
 
 const ADJECTIVE_PLURAL_QUESTION: &str = "Write down the plural form of this word";
 
-const ADJECTIVE_PLURAL_QUESTION_BASE: QuestionTemplate<AdjectiveSpecific> = QuestionTemplate {
+const ADJECTIVE_PLURAL_QUESTION_BASE: QuestionTemplate<Adjective> = QuestionTemplate {
     question: ADJECTIVE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_plural(),
 };
 
-const ADJECTIVE_PLURAL_QUESTION_NEUTER: QuestionTemplate<AdjectiveSpecific> = QuestionTemplate {
+const ADJECTIVE_PLURAL_QUESTION_NEUTER: QuestionTemplate<Adjective> = QuestionTemplate {
     question: ADJECTIVE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_neuter(),
     answer: |word_forms| word_forms.get_plural(),
 };
 
-const ADJECTIVE_QUESTIONS: [QuestionTemplate<AdjectiveSpecific>; 8] = [
+const ADJECTIVE_QUESTIONS: [QuestionTemplate<Adjective>; 8] = [
     ADJECTIVE_TRANSLATION_QUESTION_E,
     ADJECTIVE_TRANSLATION_QUESTION_S,
     ADJECTIVE_BASE_QUESTION_NEUTER,
@@ -186,31 +179,31 @@ const ADJECTIVE_QUESTIONS: [QuestionTemplate<AdjectiveSpecific>; 8] = [
     ADJECTIVE_PLURAL_QUESTION_NEUTER,
 ];
 
-const VERB_TRANSLATION_QUESTION_E: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_TRANSLATION_QUESTION_E: QuestionTemplate<Verb> = QuestionTemplate {
     question: TRANSLATION_QUESTION_E,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_translation(),
 };
 
-const VERB_TRANSLATION_QUESTION_S: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_TRANSLATION_QUESTION_S: QuestionTemplate<Verb> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const VERB_BASE_QUESTION_PRESENT: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_BASE_QUESTION_PRESENT: QuestionTemplate<Verb> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_present(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const VERB_BASE_QUESTION_PAST: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_BASE_QUESTION_PAST: QuestionTemplate<Verb> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_past(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const VERB_BASE_QUESTION_PERFECT: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_BASE_QUESTION_PERFECT: QuestionTemplate<Verb> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_perfect(),
     answer: |word_forms| word_forms.get_word(),
@@ -218,19 +211,19 @@ const VERB_BASE_QUESTION_PERFECT: QuestionTemplate<VerbSpecific> = QuestionTempl
 
 const VERB_PRESENT_QUESTION: &str = "Write down the present form of this word";
 
-const VERB_PRESENT_QUESTION_BASE: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PRESENT_QUESTION_BASE: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PRESENT_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_present(),
 };
 
-const VERB_PRESENT_QUESTION_PAST: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PRESENT_QUESTION_PAST: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PRESENT_QUESTION,
     base: |word_forms| word_forms.get_past(),
     answer: |word_forms| word_forms.get_present(),
 };
 
-const VERB_PRESENT_QUESTION_PERFECT: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PRESENT_QUESTION_PERFECT: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PRESENT_QUESTION,
     base: |word_forms| word_forms.get_perfect(),
     answer: |word_forms| word_forms.get_present(),
@@ -238,19 +231,19 @@ const VERB_PRESENT_QUESTION_PERFECT: QuestionTemplate<VerbSpecific> = QuestionTe
 
 const VERB_PAST_QUESTION: &str = "Write down the past form of this word";
 
-const VERB_PAST_QUESTION_BASE: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PAST_QUESTION_BASE: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PAST_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_past(),
 };
 
-const VERB_PAST_QUESTION_PRESENT: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PAST_QUESTION_PRESENT: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PAST_QUESTION,
     base: |word_forms| word_forms.get_present(),
     answer: |word_forms| word_forms.get_past(),
 };
 
-const VERB_PAST_QUESTION_PERFECT: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PAST_QUESTION_PERFECT: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PAST_QUESTION,
     base: |word_forms| word_forms.get_perfect(),
     answer: |word_forms| word_forms.get_past(),
@@ -258,25 +251,25 @@ const VERB_PAST_QUESTION_PERFECT: QuestionTemplate<VerbSpecific> = QuestionTempl
 
 const VERB_PERFECT_QUESTION: &str = "Write down the perfect form of this word";
 
-const VERB_PERFECT_QUESTION_BASE: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PERFECT_QUESTION_BASE: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PERFECT_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_perfect(),
 };
 
-const VERB_PERFECT_QUESTION_PRESENT: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PERFECT_QUESTION_PRESENT: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PERFECT_QUESTION,
     base: |word_forms| word_forms.get_present(),
     answer: |word_forms| word_forms.get_perfect(),
 };
 
-const VERB_PERFECT_QUESTION_PAST: QuestionTemplate<VerbSpecific> = QuestionTemplate {
+const VERB_PERFECT_QUESTION_PAST: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PERFECT_QUESTION,
     base: |word_forms| word_forms.get_past(),
     answer: |word_forms| word_forms.get_perfect(),
 };
 
-const VERB_QUESTIONS: [QuestionTemplate<VerbSpecific>; 14] = [
+const VERB_QUESTIONS: [QuestionTemplate<Verb>; 14] = [
     VERB_TRANSLATION_QUESTION_E,
     VERB_TRANSLATION_QUESTION_S,
     VERB_BASE_QUESTION_PRESENT,
@@ -293,61 +286,56 @@ const VERB_QUESTIONS: [QuestionTemplate<VerbSpecific>; 14] = [
     VERB_PERFECT_QUESTION_PAST,
 ];
 
-const ADVERB_TRANSLATION_QUESTION_E: QuestionTemplate<AdverbSpecific> = QuestionTemplate {
+const ADVERB_TRANSLATION_QUESTION_E: QuestionTemplate<Adverb> = QuestionTemplate {
     question: TRANSLATION_QUESTION_E,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_translation(),
 };
 
-const ADVERB_TRANSLATION_QUESTION_S: QuestionTemplate<AdverbSpecific> = QuestionTemplate {
+const ADVERB_TRANSLATION_QUESTION_S: QuestionTemplate<Adverb> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
 };
 
-const ADVERB_QUESTIONS: [QuestionTemplate<AdverbSpecific>; 2] =
+const ADVERB_QUESTIONS: [QuestionTemplate<Adverb>; 2] =
     [ADVERB_TRANSLATION_QUESTION_E, ADVERB_TRANSLATION_QUESTION_S];
 
-const PER_PRONOUN_TRANSLATION_QUESTION_E: QuestionTemplate<PersonalPronounSpecific> =
-    QuestionTemplate {
-        question: TRANSLATION_QUESTION_E,
-        base: |word_forms| word_forms.get_word(),
-        answer: |word_forms| word_forms.get_translation(),
-    };
+const PER_PRONOUN_TRANSLATION_QUESTION_E: QuestionTemplate<PersonalPronoun> = QuestionTemplate {
+    question: TRANSLATION_QUESTION_E,
+    base: |word_forms| word_forms.get_word(),
+    answer: |word_forms| word_forms.get_translation(),
+};
 
-const PER_PRONOUN_TRANSLATION_QUESTION_S: QuestionTemplate<PersonalPronounSpecific> =
-    QuestionTemplate {
-        question: TRANSLATION_QUESTION_S,
-        base: |word_forms| word_forms.get_translation(),
-        answer: |word_forms| word_forms.get_word(),
-    };
+const PER_PRONOUN_TRANSLATION_QUESTION_S: QuestionTemplate<PersonalPronoun> = QuestionTemplate {
+    question: TRANSLATION_QUESTION_S,
+    base: |word_forms| word_forms.get_translation(),
+    answer: |word_forms| word_forms.get_word(),
+};
 
-const PER_PRONOUN_BASE_QUESTION_OBJECT: QuestionTemplate<PersonalPronounSpecific> =
-    QuestionTemplate {
-        question: "Write down the subjective form of this word",
-        base: |word_forms| word_forms.get_object(),
-        answer: |word_forms| word_forms.get_word(),
-    };
+const PER_PRONOUN_BASE_QUESTION_OBJECT: QuestionTemplate<PersonalPronoun> = QuestionTemplate {
+    question: "Write down the subjective form of this word",
+    base: |word_forms| word_forms.get_object(),
+    answer: |word_forms| word_forms.get_word(),
+};
 
-const PER_PRONOUN_OBJECT_QUESTION_BASE: QuestionTemplate<PersonalPronounSpecific> =
-    QuestionTemplate {
-        question: "Write down the objective form of this word",
-        base: |word_forms| word_forms.get_word(),
-        answer: |word_forms| word_forms.get_object(),
-    };
+const PER_PRONOUN_OBJECT_QUESTION_BASE: QuestionTemplate<PersonalPronoun> = QuestionTemplate {
+    question: "Write down the objective form of this word",
+    base: |word_forms| word_forms.get_word(),
+    answer: |word_forms| word_forms.get_object(),
+};
 
-const PRONOUN_QUESTIONS: [QuestionTemplate<PersonalPronounSpecific>; 4] = [
+const PRONOUN_QUESTIONS: [QuestionTemplate<PersonalPronoun>; 4] = [
     PER_PRONOUN_TRANSLATION_QUESTION_E,
     PER_PRONOUN_TRANSLATION_QUESTION_S,
     PER_PRONOUN_BASE_QUESTION_OBJECT,
     PER_PRONOUN_OBJECT_QUESTION_BASE,
 ];
 
-#[derive(PartialEq, Debug)]
-struct QuestionTemplate<'a, T> {
+struct QuestionTemplate<'a, T: Forms> {
     question: &'a str,
-    base: fn(&WordForms<T>) -> &str,
-    answer: fn(&WordForms<T>) -> &str,
+    base: fn(&T) -> &str,
+    answer: fn(&T) -> &str,
 }
 
 pub struct Question {
@@ -356,8 +344,15 @@ pub struct Question {
     answer: String,
 }
 
-impl<T> QuestionTemplate<'_, T> {
-    fn question_from_template(&self, forms: &WordForms<T>) -> Question {
+impl<'a, T> QuestionTemplate<'_, T>
+where
+    T: Forms,
+{
+    fn random_template(arr: &'a [QuestionTemplate<T>]) -> &'a QuestionTemplate<'a, T> {
+        arr.choose(&mut rand::rng()).expect("Empty question array")
+    }
+
+    fn question_from_template(&self, forms: &T) -> Question {
         Question {
             question: String::from(self.question),
             base: String::from((self.base)(forms)),
@@ -367,32 +362,6 @@ impl<T> QuestionTemplate<'_, T> {
 }
 
 impl Question {
-    /// Picks a random question that relates to the given word.
-    pub fn get_question_by_word(word: &Word) -> Question {
-        match word {
-            Word::Noun(noun) => {
-                let template = pick_question(&NOUN_QUESTIONS);
-                template.question_from_template(noun)
-            }
-            Word::Adjective(adj) => {
-                let template = pick_question(&ADJECTIVE_QUESTIONS);
-                template.question_from_template(adj)
-            }
-            Word::Verb(verb) => {
-                let template = pick_question(&VERB_QUESTIONS);
-                template.question_from_template(verb)
-            }
-            Word::PersonalPronoun(pr) => {
-                let template = pick_question(&PRONOUN_QUESTIONS);
-                template.question_from_template(pr)
-            }
-            Word::Adverb(adv) => {
-                let template = pick_question(&ADVERB_QUESTIONS);
-                template.question_from_template(adv)
-            }
-        }
-    }
-
     /// Get the question text.
     pub fn get_question(&self) -> &str {
         &self.question
@@ -409,85 +378,93 @@ impl Question {
     }
 }
 
-fn pick_question<'a, T>(arr: &'a [QuestionTemplate<T>]) -> &'a QuestionTemplate<'a, T> {
-    let rand = rand::rng().random_range(0..arr.len());
-    &arr[rand]
+pub trait Pick: super::Forms {
+    fn get_question(&self) -> Question;
+}
+
+impl Pick for Noun {
+    fn get_question(&self) -> Question {
+        QuestionTemplate::random_template(&NOUN_QUESTIONS).question_from_template(&self)
+    }
+}
+
+impl Pick for Adjective {
+    fn get_question(&self) -> Question {
+        QuestionTemplate::random_template(&ADJECTIVE_QUESTIONS).question_from_template(&self)
+    }
+}
+
+impl Pick for Verb {
+    fn get_question(&self) -> Question {
+        QuestionTemplate::random_template(&VERB_QUESTIONS).question_from_template(&self)
+    }
+}
+
+impl Pick for Adverb {
+    fn get_question(&self) -> Question {
+        QuestionTemplate::random_template(&ADVERB_QUESTIONS).question_from_template(&self)
+    }
+}
+
+impl Pick for PersonalPronoun {
+    fn get_question(&self) -> Question {
+        QuestionTemplate::random_template(&PRONOUN_QUESTIONS).question_from_template(&self)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use super::super::WordGeneral;
     use super::*;
 
-    fn setup_noun() -> WordForms<NounSpecific> {
-        WordForms {
-            general: WordGeneral {
-                word: String::from("word_noun"),
-                translation: String::from("translation_noun"),
-            },
-            specific: NounSpecific {
-                definite_singular: String::from("definite_singular"),
-                indefinite_plural: String::from("indefinite_plural"),
-                definite_plural: String::from("definite_plural"),
-            },
+    fn setup_noun() -> Noun {
+        Noun {
+            word: String::from("word_noun"),
+            translation: String::from("translation_noun"),
+            definite_singular: String::from("definite_singular"),
+            indefinite_plural: String::from("indefinite_plural"),
+            definite_plural: String::from("definite_plural"),
         }
     }
 
-    fn setup_adjective() -> WordForms<AdjectiveSpecific> {
-        WordForms {
-            general: WordGeneral {
-                word: String::from("word_adj"),
-                translation: String::from("translation_adj"),
-            },
-            specific: AdjectiveSpecific {
-                neuter: String::from("neuter"),
-                plural: String::from("plural"),
-            },
+    fn setup_adjective() -> Adjective {
+        Adjective {
+            word: String::from("word_adj"),
+            translation: String::from("translation_adj"),
+
+            neuter: String::from("neuter"),
+            plural: String::from("plural"),
         }
     }
 
-    fn setup_verb() -> WordForms<VerbSpecific> {
-        WordForms {
-            general: WordGeneral {
-                word: String::from("word_verb"),
-                translation: String::from("translation_verb"),
-            },
-            specific: VerbSpecific {
-                present: String::from("present"),
-                past: String::from("past"),
-                perfect: String::from("perfect"),
-            },
+    fn setup_verb() -> Verb {
+        Verb {
+            word: String::from("word_verb"),
+            translation: String::from("translation_verb"),
+            present: String::from("present"),
+            past: String::from("past"),
+            perfect: String::from("perfect"),
         }
     }
 
-    fn setup_adverb() -> WordForms<AdverbSpecific> {
-        WordForms {
-            general: WordGeneral {
-                word: String::from("word_adv"),
-                translation: String::from("translation_adv"),
-            },
-            specific: AdverbSpecific,
+    fn setup_adverb() -> Adverb {
+        Adverb {
+            word: String::from("word_adv"),
+            translation: String::from("translation_adv"),
         }
     }
 
-    fn setup_personal_pronoun() -> WordForms<PersonalPronounSpecific> {
-        WordForms {
-            general: WordGeneral {
-                word: String::from("word_pr"),
-                translation: String::from("translation_pr"),
-            },
-            specific: PersonalPronounSpecific {
-                object: String::from("object"),
-            },
+    fn setup_personal_pronoun() -> PersonalPronoun {
+        PersonalPronoun {
+            word: String::from("word_pr"),
+            translation: String::from("translation_pr"),
+            object: String::from("object"),
         }
     }
 
-    fn test_template<T>(
-        exp_base: &str,
-        exp_answer: &str,
-        template: &QuestionTemplate<T>,
-        forms: &WordForms<T>,
-    ) {
+    fn test_template<T>(exp_base: &str, exp_answer: &str, template: &QuestionTemplate<T>, forms: &T)
+    where
+        T: Forms,
+    {
         let expected = Question {
             question: String::from(""),
             base: String::from(exp_base),
@@ -900,40 +877,5 @@ mod test {
         let pr = setup_personal_pronoun();
         println!("personal pronoun from subjective to objective");
         test_template("word_pr", "object", &PER_PRONOUN_OBJECT_QUESTION_BASE, &pr);
-    }
-
-    #[test]
-    fn picked_question_is_from_array() {
-        for _ in 1..100 {
-            let q = pick_question(&NOUN_QUESTIONS);
-            assert!(
-                NOUN_QUESTIONS.contains(q),
-                "picked noun question from another collection"
-            );
-
-            let q = pick_question(&ADJECTIVE_QUESTIONS);
-            assert!(
-                ADJECTIVE_QUESTIONS.contains(q),
-                "picked adjective question from another collection"
-            );
-
-            let q = pick_question(&VERB_QUESTIONS);
-            assert!(
-                VERB_QUESTIONS.contains(q),
-                "picked verb question from another collection"
-            );
-
-            let q = pick_question(&ADVERB_QUESTIONS);
-            assert!(
-                ADVERB_QUESTIONS.contains(q),
-                "picked adverb question from another collection"
-            );
-
-            let q = pick_question(&PRONOUN_QUESTIONS);
-            assert!(
-                PRONOUN_QUESTIONS.contains(q),
-                "picked pronoun question from another collection"
-            );
-        }
     }
 }

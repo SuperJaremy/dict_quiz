@@ -23,7 +23,12 @@
 //! - Adverb: `inte,not,ADVERB,,,,,,,,`;
 //! - Personal pronoun: `hon,she,PER_PRONOUN,,,,,,,,henne`.
 
-use super::Word;
+use super::question::Pick;
+use crate::word::Adjective;
+use crate::word::Adverb;
+use crate::word::Noun;
+use crate::word::PersonalPronoun;
+use crate::word::Verb;
 use serde::Deserialize;
 
 /// csv representation of `dict_quiz::word::Word`.
@@ -53,35 +58,34 @@ pub struct WordCSV {
     object: Option<String>,
 }
 /// Transforms WordCSV to Word
-pub fn word_csv_to_word(word_csv: WordCSV) -> Result<Word, &'static str> {
+pub fn word_csv_to_word(word_csv: WordCSV) -> Result<Box<dyn Pick>, &'static str> {
     let class = &word_csv.class;
 
-    let word = if class == "NOUN" {
-        word_csv_to_noun(word_csv)
-    } else if class == "ADJECTIVE" {
-        word_csv_to_adjective(word_csv)
-    } else if class == "VERB" {
-        word_csv_to_verb(word_csv)
-    } else if class == "ADVERB" {
-        word_csv_to_adverb(word_csv)
-    } else if class == "PER_PRONOUN" {
-        word_csv_to_personal_pronoun(word_csv)
-    } else {
-        None
-    };
-
-    match word {
-        Some(ret) => Ok(ret),
-        None => Err("Wrong class"),
+    match class.as_str() {
+        "NOUN" => {
+            word_csv_to_noun(word_csv).map_or(Err("Error parsing noun"), |word| Ok(Box::new(word)))
+        }
+        "ADJECTIVE" => word_csv_to_adjective(word_csv)
+            .map_or(Err("Error parsing adjective"), |word| Ok(Box::new(word))),
+        "VERB" => {
+            word_csv_to_verb(word_csv).map_or(Err("Error parsing verb"), |word| Ok(Box::new(word)))
+        }
+        "ADVERB" => word_csv_to_adverb(word_csv)
+            .map_or(Err("Error parsing adverb"), |word| Ok(Box::new(word))),
+        "PER_PRONOUN" => word_csv_to_personal_pronoun(word_csv)
+            .map_or(Err("Error parsing personal pronoun"), |word| {
+                Ok(Box::new(word))
+            }),
+        &_ => Err("Wrong class"),
     }
 }
 
-fn word_csv_to_noun(word_csv: WordCSV) -> Option<Word> {
+fn word_csv_to_noun(word_csv: WordCSV) -> Option<Noun> {
     if let Some(definite_s) = word_csv.definite_singular
         && let Some(plural_i) = word_csv.plural
         && let Some(definite_p) = word_csv.definite_plural
     {
-        Some(Word::new_noun(
+        Some(Noun::new(
             word_csv.word,
             word_csv.translation,
             definite_s,
@@ -93,11 +97,11 @@ fn word_csv_to_noun(word_csv: WordCSV) -> Option<Word> {
     }
 }
 
-fn word_csv_to_adjective(word_csv: WordCSV) -> Option<Word> {
+fn word_csv_to_adjective(word_csv: WordCSV) -> Option<Adjective> {
     if let Some(neuter) = word_csv.neuter
         && let Some(plural) = word_csv.plural
     {
-        Some(Word::new_adjective(
+        Some(Adjective::new(
             word_csv.word,
             word_csv.translation,
             neuter,
@@ -108,12 +112,12 @@ fn word_csv_to_adjective(word_csv: WordCSV) -> Option<Word> {
     }
 }
 
-fn word_csv_to_verb(word_csv: WordCSV) -> Option<Word> {
+fn word_csv_to_verb(word_csv: WordCSV) -> Option<Verb> {
     if let Some(present) = word_csv.present
         && let Some(past) = word_csv.past
         && let Some(perfect) = word_csv.perfect
     {
-        Some(Word::new_verb(
+        Some(Verb::new(
             word_csv.word,
             word_csv.translation,
             present,
@@ -125,13 +129,13 @@ fn word_csv_to_verb(word_csv: WordCSV) -> Option<Word> {
     }
 }
 
-fn word_csv_to_adverb(word_csv: WordCSV) -> Option<Word> {
-    Some(Word::new_adverb(word_csv.word, word_csv.translation))
+fn word_csv_to_adverb(word_csv: WordCSV) -> Option<Adverb> {
+    Some(Adverb::new(word_csv.word, word_csv.translation))
 }
 
-fn word_csv_to_personal_pronoun(word_csv: WordCSV) -> Option<Word> {
+fn word_csv_to_personal_pronoun(word_csv: WordCSV) -> Option<PersonalPronoun> {
     if let Some(object) = word_csv.object {
-        Some(Word::new_personal_pronoun(
+        Some(PersonalPronoun::new(
             word_csv.word,
             word_csv.translation,
             object,
@@ -241,15 +245,6 @@ mod tests {
             act2.is_ok(),
             "word_csv_to_word cannot create a noun with definite and plural forms"
         );
-
-        if let Some(act1) = act1
-            && let Ok(act2) = act2
-        {
-            assert_eq!(
-                act1, act2,
-                "word_csv_to_word and word_csv_to_noun produce different results"
-            );
-        }
     }
 
     #[test]
@@ -303,15 +298,6 @@ mod tests {
             act2.is_ok(),
             "word_csv_to_word cannot create an adjective with neuter and plural forms"
         );
-
-        if let Some(act1) = act1
-            && let Ok(act2) = act2
-        {
-            assert_eq!(
-                act1, act2,
-                "word_csv_to_word and word_csv_to_adjective produce different results"
-            );
-        }
     }
 
     #[test]
@@ -373,15 +359,6 @@ mod tests {
             act2.is_ok(),
             "word_csv_to_word cannot create a verb with present and past forms"
         );
-
-        if let Some(act1) = act1
-            && let Ok(act2) = act2
-        {
-            assert_eq!(
-                act1, act2,
-                "word_csv_to_word and word_csv_to_verb produce different results"
-            );
-        }
     }
 
     #[test]
@@ -413,15 +390,6 @@ mod tests {
 
         let act2 = word_csv_to_word(correct);
         assert!(act2.is_ok(), "word_csv_to_word cannot create an adverb");
-
-        if let Some(act1) = act1
-            && let Ok(act2) = act2
-        {
-            assert_eq!(
-                act1, act2,
-                "word_csv_to_word and word_csv_to_adverb produce different results"
-            );
-        }
     }
 
     #[test]
@@ -469,14 +437,5 @@ mod tests {
             act2.is_ok(),
             "word_csv_to_word cannot create a pronoun with possessive form"
         );
-
-        if let Some(act1) = act1
-            && let Ok(act2) = act2
-        {
-            assert_eq!(
-                act1, act2,
-                "word_csv_to_word and word_csv_to_pronoun produce different results"
-            );
-        }
     }
 }
