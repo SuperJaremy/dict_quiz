@@ -16,7 +16,7 @@ engaging.
 - `rustc ~= 1.89.0`
 - `cargo ~= 1.89.0`
 
-## Run
+### Run
 `$ cargo run --release /path/to/dicitonary`
 
 ## Dictionary
