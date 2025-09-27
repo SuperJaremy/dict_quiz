@@ -1,7 +1,54 @@
 //! The collection of all available quiz questions.
 
 use super::{Adjective, Adverb, Forms, Noun, PersonalPronoun, Verb};
-use rand::seq::IndexedRandom;
+use categories::{Category, Property};
+use rand::seq::IteratorRandom;
+
+pub mod categories {
+    pub enum Property {
+        EnglishToSwedishTranslation,
+        SwedishToEnglishTranslation,
+        SwedishFormToSwedishForm,
+    }
+
+    struct PropertyFilter {
+        filter: fn(&Property) -> bool,
+    }
+
+    const E_T_S_FILTER: PropertyFilter = PropertyFilter {
+        filter: |property| matches!(property, Property::EnglishToSwedishTranslation),
+    };
+
+    const S_T_E_FILTER: PropertyFilter = PropertyFilter {
+        filter: |property| matches!(property, Property::SwedishToEnglishTranslation),
+    };
+
+    const BLANK_FILTER: PropertyFilter = PropertyFilter {
+        filter: |_property| true,
+    };
+
+    pub struct Category {
+        apply: fn(&Property) -> bool,
+    }
+
+    pub const CATEGORY_BEGINNER: Category = Category {
+        apply: |property| (S_T_E_FILTER.filter)(property),
+    };
+
+    pub const CATEGORY_ADVANCED: Category = Category {
+        apply: |property| (E_T_S_FILTER.filter)(property) || (S_T_E_FILTER.filter)(property),
+    };
+
+    pub const CATEGORY_PROFICIENT: Category = Category {
+        apply: |property| (BLANK_FILTER.filter)(property),
+    };
+
+    impl Category {
+        pub fn apply(&self, property: &Property) -> bool {
+            (self.apply)(property)
+        }
+    }
+}
 
 const TRANSLATION_QUESTION_E: &str = "Translate this word in English";
 const TRANSLATION_QUESTION_S: &str = "Translate this word in Swedish";
@@ -11,30 +58,35 @@ const NOUN_TRANSLATION_QUESTION_E: QuestionTemplate<Noun> = QuestionTemplate {
     question: TRANSLATION_QUESTION_E,
     base: |noun| noun.get_word(),
     answer: |noun| noun.get_translation(),
+    property: Property::SwedishToEnglishTranslation,
 };
 
 const NOUN_TRANSLATION_QUESTION_S: QuestionTemplate<Noun> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::EnglishToSwedishTranslation,
 };
 
 const NOUN_BASE_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_indefinite_plural(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_BASE_QUESTION_DEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_definite_plural(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_BASE_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<Noun> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_definite_singular(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_INDEFINITE_PLURAL_QUESTION: &str = "Write down the indefinite plural form of this word";
@@ -43,6 +95,7 @@ const NOUN_INDEFINITE_PLURAL_QUESTION_BASE: QuestionTemplate<Noun> = QuestionTem
     question: NOUN_INDEFINITE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_indefinite_plural(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_INDEFINITE_PLURAL_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<Noun> =
@@ -50,12 +103,14 @@ const NOUN_INDEFINITE_PLURAL_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<Noun> 
         question: NOUN_INDEFINITE_PLURAL_QUESTION,
         base: |word_forms| word_forms.get_definite_singular(),
         answer: |word_forms| word_forms.get_indefinite_plural(),
+        property: Property::SwedishFormToSwedishForm,
     };
 
 const NOUN_INDEFINITE_PLURAL_QUESTION_DEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
     question: NOUN_INDEFINITE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_definite_plural(),
     answer: |word_forms| word_forms.get_indefinite_plural(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_DEFINITE_SINGULAR_QUESTION: &str = "Write down the definite singular form of this word";
@@ -64,6 +119,7 @@ const NOUN_DEFINITE_SINGULAR_QUESTION_BASE: QuestionTemplate<Noun> = QuestionTem
     question: NOUN_DEFINITE_SINGULAR_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_definite_singular(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_DEFINITE_SINGULAR_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<Noun> =
@@ -71,12 +127,14 @@ const NOUN_DEFINITE_SINGULAR_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<Noun> 
         question: NOUN_DEFINITE_SINGULAR_QUESTION,
         base: |word_forms| word_forms.get_indefinite_plural(),
         answer: |word_forms| word_forms.get_definite_singular(),
+        property: Property::SwedishFormToSwedishForm,
     };
 
 const NOUN_DEFINITE_SINGULAR_QUESTION_DEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
     question: NOUN_DEFINITE_SINGULAR_QUESTION,
     base: |word_forms| word_forms.get_definite_plural(),
     answer: |word_forms| word_forms.get_definite_singular(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_DEFINITE_PLURAL_QUESTION: &str = "Write down the definite plural form of this word";
@@ -85,18 +143,21 @@ const NOUN_DEFINITE_PLURAL_QUESTION_BASE: QuestionTemplate<Noun> = QuestionTempl
     question: NOUN_DEFINITE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_definite_plural(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_DEFINITE_PLURAL_QUESTION_INDEFINITE_PLURAL: QuestionTemplate<Noun> = QuestionTemplate {
     question: NOUN_DEFINITE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_indefinite_plural(),
     answer: |word_forms| word_forms.get_definite_plural(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_DEFINITE_PLURAL_QUESTION_DEFINITE_SINGULAR: QuestionTemplate<Noun> = QuestionTemplate {
     question: NOUN_DEFINITE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_definite_singular(),
     answer: |word_forms| word_forms.get_definite_plural(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const NOUN_QUESTIONS: [QuestionTemplate<Noun>; 14] = [
@@ -120,24 +181,28 @@ const ADJECTIVE_TRANSLATION_QUESTION_E: QuestionTemplate<Adjective> = QuestionTe
     question: TRANSLATION_QUESTION_E,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_translation(),
+    property: Property::SwedishToEnglishTranslation,
 };
 
 const ADJECTIVE_TRANSLATION_QUESTION_S: QuestionTemplate<Adjective> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::EnglishToSwedishTranslation,
 };
 
 const ADJECTIVE_BASE_QUESTION_NEUTER: QuestionTemplate<Adjective> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_neuter(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const ADJECTIVE_BASE_QUESTION_PLURAL: QuestionTemplate<Adjective> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_plural(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const ADJECTIVE_NEUTER_QUESTION: &str = "Write down the neuter form of this word";
@@ -146,12 +211,14 @@ const ADJECTIVE_NEUTER_QUESTION_BASE: QuestionTemplate<Adjective> = QuestionTemp
     question: ADJECTIVE_NEUTER_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_neuter(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const ADJECTIVE_NEUTER_QUESTION_PLURAL: QuestionTemplate<Adjective> = QuestionTemplate {
     question: ADJECTIVE_NEUTER_QUESTION,
     base: |word_forms| word_forms.get_plural(),
     answer: |word_forms| word_forms.get_neuter(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const ADJECTIVE_PLURAL_QUESTION: &str = "Write down the plural form of this word";
@@ -160,12 +227,14 @@ const ADJECTIVE_PLURAL_QUESTION_BASE: QuestionTemplate<Adjective> = QuestionTemp
     question: ADJECTIVE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_plural(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const ADJECTIVE_PLURAL_QUESTION_NEUTER: QuestionTemplate<Adjective> = QuestionTemplate {
     question: ADJECTIVE_PLURAL_QUESTION,
     base: |word_forms| word_forms.get_neuter(),
     answer: |word_forms| word_forms.get_plural(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const ADJECTIVE_QUESTIONS: [QuestionTemplate<Adjective>; 8] = [
@@ -183,30 +252,35 @@ const VERB_TRANSLATION_QUESTION_E: QuestionTemplate<Verb> = QuestionTemplate {
     question: TRANSLATION_QUESTION_E,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_translation(),
+    property: Property::SwedishToEnglishTranslation,
 };
 
 const VERB_TRANSLATION_QUESTION_S: QuestionTemplate<Verb> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::EnglishToSwedishTranslation,
 };
 
 const VERB_BASE_QUESTION_PRESENT: QuestionTemplate<Verb> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_present(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_BASE_QUESTION_PAST: QuestionTemplate<Verb> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_past(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_BASE_QUESTION_PERFECT: QuestionTemplate<Verb> = QuestionTemplate {
     question: BASE_QUESTION,
     base: |word_forms| word_forms.get_perfect(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PRESENT_QUESTION: &str = "Write down the present form of this word";
@@ -215,18 +289,21 @@ const VERB_PRESENT_QUESTION_BASE: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PRESENT_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_present(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PRESENT_QUESTION_PAST: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PRESENT_QUESTION,
     base: |word_forms| word_forms.get_past(),
     answer: |word_forms| word_forms.get_present(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PRESENT_QUESTION_PERFECT: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PRESENT_QUESTION,
     base: |word_forms| word_forms.get_perfect(),
     answer: |word_forms| word_forms.get_present(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PAST_QUESTION: &str = "Write down the past form of this word";
@@ -235,18 +312,21 @@ const VERB_PAST_QUESTION_BASE: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PAST_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_past(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PAST_QUESTION_PRESENT: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PAST_QUESTION,
     base: |word_forms| word_forms.get_present(),
     answer: |word_forms| word_forms.get_past(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PAST_QUESTION_PERFECT: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PAST_QUESTION,
     base: |word_forms| word_forms.get_perfect(),
     answer: |word_forms| word_forms.get_past(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PERFECT_QUESTION: &str = "Write down the perfect form of this word";
@@ -255,18 +335,21 @@ const VERB_PERFECT_QUESTION_BASE: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PERFECT_QUESTION,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_perfect(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PERFECT_QUESTION_PRESENT: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PERFECT_QUESTION,
     base: |word_forms| word_forms.get_present(),
     answer: |word_forms| word_forms.get_perfect(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_PERFECT_QUESTION_PAST: QuestionTemplate<Verb> = QuestionTemplate {
     question: VERB_PERFECT_QUESTION,
     base: |word_forms| word_forms.get_past(),
     answer: |word_forms| word_forms.get_perfect(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const VERB_QUESTIONS: [QuestionTemplate<Verb>; 14] = [
@@ -290,12 +373,14 @@ const ADVERB_TRANSLATION_QUESTION_E: QuestionTemplate<Adverb> = QuestionTemplate
     question: TRANSLATION_QUESTION_E,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_translation(),
+    property: Property::SwedishToEnglishTranslation,
 };
 
 const ADVERB_TRANSLATION_QUESTION_S: QuestionTemplate<Adverb> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::EnglishToSwedishTranslation,
 };
 
 const ADVERB_QUESTIONS: [QuestionTemplate<Adverb>; 2] =
@@ -305,24 +390,28 @@ const PER_PRONOUN_TRANSLATION_QUESTION_E: QuestionTemplate<PersonalPronoun> = Qu
     question: TRANSLATION_QUESTION_E,
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_translation(),
+    property: Property::SwedishToEnglishTranslation,
 };
 
 const PER_PRONOUN_TRANSLATION_QUESTION_S: QuestionTemplate<PersonalPronoun> = QuestionTemplate {
     question: TRANSLATION_QUESTION_S,
     base: |word_forms| word_forms.get_translation(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::EnglishToSwedishTranslation,
 };
 
 const PER_PRONOUN_BASE_QUESTION_OBJECT: QuestionTemplate<PersonalPronoun> = QuestionTemplate {
     question: "Write down the subjective form of this word",
     base: |word_forms| word_forms.get_object(),
     answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const PER_PRONOUN_OBJECT_QUESTION_BASE: QuestionTemplate<PersonalPronoun> = QuestionTemplate {
     question: "Write down the objective form of this word",
     base: |word_forms| word_forms.get_word(),
     answer: |word_forms| word_forms.get_object(),
+    property: Property::SwedishFormToSwedishForm,
 };
 
 const PRONOUN_QUESTIONS: [QuestionTemplate<PersonalPronoun>; 4] = [
@@ -336,6 +425,7 @@ struct QuestionTemplate<'a, T: Forms> {
     question: &'a str,
     base: fn(&T) -> &str,
     answer: fn(&T) -> &str,
+    property: Property,
 }
 
 pub struct Question {
@@ -348,8 +438,14 @@ impl<'a, T> QuestionTemplate<'_, T>
 where
     T: Forms,
 {
-    fn random_template(arr: &'a [QuestionTemplate<T>]) -> &'a QuestionTemplate<'a, T> {
-        arr.choose(&mut rand::rng()).expect("Empty question array")
+    fn random_template(
+        arr: &'a [QuestionTemplate<T>],
+        category: &'a Category,
+    ) -> &'a QuestionTemplate<'a, T> {
+        arr.iter()
+            .filter(|template| category.apply(&template.property))
+            .choose(&mut rand::rng())
+            .expect("Empty question array")
     }
 
     fn question_from_template(&self, forms: &T) -> Question {
@@ -379,42 +475,47 @@ impl Question {
 }
 
 pub trait Pick: super::Forms {
-    fn get_question(&self) -> Question;
+    fn get_question(&self, category: &Category) -> Question;
 }
 
 impl Pick for Noun {
-    fn get_question(&self) -> Question {
-        QuestionTemplate::random_template(&NOUN_QUESTIONS).question_from_template(&self)
+    fn get_question(&self, category: &Category) -> Question {
+        QuestionTemplate::random_template(&NOUN_QUESTIONS, category).question_from_template(&self)
     }
 }
 
 impl Pick for Adjective {
-    fn get_question(&self) -> Question {
-        QuestionTemplate::random_template(&ADJECTIVE_QUESTIONS).question_from_template(&self)
+    fn get_question(&self, category: &Category) -> Question {
+        QuestionTemplate::random_template(&ADJECTIVE_QUESTIONS, category)
+            .question_from_template(&self)
     }
 }
 
 impl Pick for Verb {
-    fn get_question(&self) -> Question {
-        QuestionTemplate::random_template(&VERB_QUESTIONS).question_from_template(&self)
+    fn get_question(&self, category: &Category) -> Question {
+        QuestionTemplate::random_template(&VERB_QUESTIONS, category).question_from_template(&self)
     }
 }
 
 impl Pick for Adverb {
-    fn get_question(&self) -> Question {
-        QuestionTemplate::random_template(&ADVERB_QUESTIONS).question_from_template(&self)
+    fn get_question(&self, category: &Category) -> Question {
+        QuestionTemplate::random_template(&ADVERB_QUESTIONS, category).question_from_template(&self)
     }
 }
 
 impl Pick for PersonalPronoun {
-    fn get_question(&self) -> Question {
-        QuestionTemplate::random_template(&PRONOUN_QUESTIONS).question_from_template(&self)
+    fn get_question(&self, category: &Category) -> Question {
+        QuestionTemplate::random_template(&PRONOUN_QUESTIONS, category)
+            .question_from_template(&self)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use super::{
+        categories::{CATEGORY_ADVANCED, CATEGORY_BEGINNER, CATEGORY_PROFICIENT},
+        *,
+    };
 
     fn setup_noun() -> Noun {
         Noun {
@@ -877,5 +978,53 @@ mod test {
         let pr = setup_personal_pronoun();
         println!("personal pronoun from subjective to objective");
         test_template("word_pr", "object", &PER_PRONOUN_OBJECT_QUESTION_BASE, &pr);
+    }
+
+    #[test]
+    fn test_pick_beginner() {
+        let noun = setup_noun();
+        let adj = setup_adjective();
+        let verb = setup_verb();
+        let adv = setup_adverb();
+        let pr = setup_personal_pronoun();
+        let category = CATEGORY_BEGINNER;
+
+        noun.get_question(&category);
+        adj.get_question(&category);
+        verb.get_question(&category);
+        adv.get_question(&category);
+        pr.get_question(&category);
+    }
+
+    #[test]
+    fn test_pick_advanced() {
+        let noun = setup_noun();
+        let adj = setup_adjective();
+        let verb = setup_verb();
+        let adv = setup_adverb();
+        let pr = setup_personal_pronoun();
+        let category = CATEGORY_ADVANCED;
+
+        noun.get_question(&category);
+        adj.get_question(&category);
+        verb.get_question(&category);
+        adv.get_question(&category);
+        pr.get_question(&category);
+    }
+
+    #[test]
+    fn test_pick_proficient() {
+        let noun = setup_noun();
+        let adj = setup_adjective();
+        let verb = setup_verb();
+        let adv = setup_adverb();
+        let pr = setup_personal_pronoun();
+        let category = CATEGORY_PROFICIENT;
+
+        noun.get_question(&category);
+        adj.get_question(&category);
+        verb.get_question(&category);
+        adv.get_question(&category);
+        pr.get_question(&category);
     }
 }

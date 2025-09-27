@@ -5,6 +5,9 @@ use std::io;
 use std::error::Error;
 
 use crate::view::View;
+use crate::word::question::categories::CATEGORY_ADVANCED;
+use crate::word::question::categories::CATEGORY_BEGINNER;
+use crate::word::question::categories::CATEGORY_PROFICIENT;
 use crate::word::question::Question;
 use crate::QuizConfig;
 use crate::QuizResults;
@@ -82,8 +85,34 @@ impl View for Console {
             number = Some(n);
         }
 
+        Console::clear_screen()?;
+        println!("Choose difficulty level [1-3]:");
+
+        let mut level: Option<i32> = None;
+
+        while level.is_none() {
+            let mut n = String::new();
+            io::stdin().read_line(&mut n)?;
+            let n: i32 = match n.trim().parse() {
+                Ok(level) if level < 4 && level > 0 => level,
+                _ => {
+                    println!("Type in a number, 0 < number < 4");
+                    continue;
+                }
+            };
+            level = Some(n);
+        }
+
+        let category = match level {
+            Some(1) => CATEGORY_BEGINNER,
+            Some(2) => CATEGORY_ADVANCED,
+            Some(3) => CATEGORY_PROFICIENT,
+            _ => panic!("level is chosen in loop"),
+        };
+
         Ok(QuizConfig {
             question_num: number.expect("number is set in the while loop"),
+            category: category,
         })
     }
 

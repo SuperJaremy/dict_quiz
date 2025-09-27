@@ -33,6 +33,7 @@ use crate::word::question::Pick;
 use console::Console;
 use rand::prelude::IndexedRandom;
 use view::View;
+use word::question::categories::Category;
 
 use crate::word::word_csv;
 use crate::word::word_csv::WordCSV;
@@ -62,7 +63,7 @@ pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
         let mut rng = SmallRng::from_os_rng();
         let questions = (&dict[..])
             .choose_multiple(&mut rng, questions_num)
-            .map(|word| (word, word.get_question()));
+            .map(|word| (word, word.get_question(&config.category)));
 
         let mut wrongs = Vec::new();
         let mut correct: u32 = 0;
@@ -119,6 +120,7 @@ fn read_csv(dict_path: OsString) -> Result<Vec<Box<dyn Pick>>, Box<dyn Error>> {
 /// Configuration parameters for a quiz instanse.
 pub struct QuizConfig {
     question_num: usize,
+    category: Category,
 }
 
 impl QuizConfig {
@@ -126,12 +128,13 @@ impl QuizConfig {
     /// # Examples
     /// ```
     /// use dict_quiz::QuizConfig;
-    ///
-    /// let conf = QuizConfig::new(10);
+    /// use dict_quiz::word::question::categories::CATEGORY_BEGINNER;
+    /// let conf = QuizConfig::new(10, CATEGORY_BEGINNER);
     /// ```
-    pub fn new(question_num: u32) -> QuizConfig {
+    pub fn new(question_num: u32, category: Category) -> QuizConfig {
         QuizConfig {
             question_num: question_num as usize,
+            category: category,
         }
     }
 }
