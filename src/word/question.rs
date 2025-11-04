@@ -472,6 +472,10 @@ impl Question {
     pub fn get_answer(&self) -> &str {
         &self.answer
     }
+
+    pub fn check_answer(&self, answ: &str) -> bool {
+        answ.trim().to_lowercase() == self.get_answer().trim().to_lowercase()
+    }
 }
 
 pub trait Pick: super::Forms {
@@ -1026,5 +1030,18 @@ mod test {
         verb.get_question(&category);
         adv.get_question(&category);
         pr.get_question(&category);
+    }
+
+    #[test]
+    fn test_check_answer() {
+        let q = Question {
+            question: String::from(""),
+            base: String::from(""),
+            answer: String::from("AnSwEr"),
+        };
+
+        let a = String::from(" aNsWeR ");
+
+        assert!(q.check_answer(&a));
     }
 }

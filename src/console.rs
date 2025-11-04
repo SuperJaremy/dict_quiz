@@ -52,7 +52,7 @@ impl View for Console {
         io::stdin().read_line(&mut answ)?;
 
         let res;
-        if answ.trim().to_lowercase() != question.get_answer() {
+        if !question.check_answer(&answ) {
             println!("❌Incorrect. The correct answer is");
             println!("{}", question.get_answer());
             res = false;
