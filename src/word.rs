@@ -78,6 +78,12 @@ pub struct PersonalPronoun {
     object: String,
 }
 
+pub struct Numeral {
+    word: String,
+    transaltion: String,
+    ordinal: String,
+}
+
 impl Noun {
     fn new(
         word: String,
@@ -263,6 +269,38 @@ impl Forms for PersonalPronoun {
             ("Word", self.get_word()),
             ("Translation", self.get_translation()),
             ("Object", self.get_object()),
+        ]
+    }
+}
+
+impl Numeral {
+    fn new(word: String, transaltion: String, ordinal: String) -> Numeral {
+        Numeral {
+            word: word,
+            transaltion: transaltion,
+            ordinal: ordinal,
+        }
+    }
+
+    fn get_ordinal(&self) -> &str {
+        &self.ordinal
+    }
+}
+
+impl Forms for Numeral {
+    fn get_word(&self) -> &str {
+        &self.word
+    }
+
+    fn get_translation(&self) -> &str {
+        &self.transaltion
+    }
+
+    fn get_forms(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("Word", self.get_word()),
+            ("Translation", self.get_translation()),
+            ("Ordinal", self.get_ordinal()),
         ]
     }
 }

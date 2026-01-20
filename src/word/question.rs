@@ -1,6 +1,6 @@
 //! The collection of all available quiz questions.
 
-use super::{Adjective, Adverb, Forms, Noun, PersonalPronoun, Verb};
+use super::{Adjective, Adverb, Forms, Noun, Numeral, PersonalPronoun, Verb};
 use categories::{Category, Property};
 use rand::seq::IteratorRandom;
 
@@ -421,6 +421,41 @@ const PRONOUN_QUESTIONS: [QuestionTemplate<PersonalPronoun>; 4] = [
     PER_PRONOUN_OBJECT_QUESTION_BASE,
 ];
 
+const NUMERAL_TRANSLATION_QUESTION_E: QuestionTemplate<Numeral> = QuestionTemplate {
+    question: TRANSLATION_QUESTION_E,
+    base: |word_forms| word_forms.get_word(),
+    answer: |word_forms| word_forms.get_translation(),
+    property: Property::SwedishToEnglishTranslation,
+};
+
+const NUMERAL_TRANSLATION_QUESTION_S: QuestionTemplate<Numeral> = QuestionTemplate {
+    question: TRANSLATION_QUESTION_S,
+    base: |word_forms| word_forms.get_translation(),
+    answer: |word_forms| word_forms.get_word(),
+    property: Property::EnglishToSwedishTranslation,
+};
+
+const NUMERAL_BASE_QUESTION_ORDINAL: QuestionTemplate<Numeral> = QuestionTemplate {
+    question: "Write down the base form of this word",
+    base: |word_forms| word_forms.get_ordinal(),
+    answer: |word_forms| word_forms.get_word(),
+    property: Property::SwedishFormToSwedishForm,
+};
+
+const NUMERAL_ORDINAL_QUESTION_BASE: QuestionTemplate<Numeral> = QuestionTemplate {
+    question: "Write down the ordinal form of this word",
+    base: |word_forms| word_forms.get_word(),
+    answer: |word_forms| word_forms.get_ordinal(),
+    property: Property::SwedishFormToSwedishForm,
+};
+
+const NUMERAL_QUESTIONS: [QuestionTemplate<Numeral>; 4] = [
+    NUMERAL_TRANSLATION_QUESTION_E,
+    NUMERAL_TRANSLATION_QUESTION_S,
+    NUMERAL_BASE_QUESTION_ORDINAL,
+    NUMERAL_ORDINAL_QUESTION_BASE,
+];
+
 struct QuestionTemplate<'a, T: Forms> {
     question: &'a str,
     base: fn(&T) -> &str,
@@ -514,6 +549,13 @@ impl Pick for PersonalPronoun {
     }
 }
 
+impl Pick for Numeral {
+    fn get_question(&self, category: &Category) -> Question {
+        QuestionTemplate::random_template(&NUMERAL_QUESTIONS, category)
+            .question_from_template(&self)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{
@@ -563,6 +605,14 @@ mod test {
             word: String::from("word_pr"),
             translation: String::from("translation_pr"),
             object: String::from("object"),
+        }
+    }
+
+    fn setup_numeral() -> Numeral {
+        Numeral {
+            word: String::from("word_num"),
+            transaltion: String::from("translation_num"),
+            ordinal: String::from("ordinal"),
         }
     }
 
@@ -985,12 +1035,51 @@ mod test {
     }
 
     #[test]
+    fn test_num_translation_english_q() {
+        let num = setup_numeral();
+        println!("numeral base from Swedish to English");
+        test_template(
+            "word_num",
+            "translation_num",
+            &NUMERAL_TRANSLATION_QUESTION_E,
+            &num,
+        );
+    }
+
+    #[test]
+    fn test_num_translation_swedish_q() {
+        let num = setup_numeral();
+        println!("numeral base from English to Swedish");
+        test_template(
+            "translation_num",
+            "word_num",
+            &NUMERAL_TRANSLATION_QUESTION_S,
+            &num,
+        );
+    }
+
+    #[test]
+    fn test_numeral_base_question_ordinal() {
+        let num = setup_numeral();
+        println!("numeral from ordinal to base");
+        test_template("ordinal", "word_num", &NUMERAL_BASE_QUESTION_ORDINAL, &num);
+    }
+
+    #[test]
+    fn test_numeral_ordinal_quesiton_base() {
+        let num = setup_numeral();
+        println!("numeral from ordinal to base");
+        test_template("word_num", "ordinal", &NUMERAL_ORDINAL_QUESTION_BASE, &num);
+    }
+
+    #[test]
     fn test_pick_beginner() {
         let noun = setup_noun();
         let adj = setup_adjective();
         let verb = setup_verb();
         let adv = setup_adverb();
         let pr = setup_personal_pronoun();
+        let num = setup_numeral();
         let category = CATEGORY_BEGINNER;
 
         noun.get_question(&category);
@@ -998,6 +1087,7 @@ mod test {
         verb.get_question(&category);
         adv.get_question(&category);
         pr.get_question(&category);
+        num.get_question(&category);
     }
 
     #[test]
@@ -1007,6 +1097,7 @@ mod test {
         let verb = setup_verb();
         let adv = setup_adverb();
         let pr = setup_personal_pronoun();
+        let num = setup_numeral();
         let category = CATEGORY_ADVANCED;
 
         noun.get_question(&category);
@@ -1014,6 +1105,7 @@ mod test {
         verb.get_question(&category);
         adv.get_question(&category);
         pr.get_question(&category);
+        num.get_question(&category);
     }
 
     #[test]
@@ -1023,6 +1115,7 @@ mod test {
         let verb = setup_verb();
         let adv = setup_adverb();
         let pr = setup_personal_pronoun();
+        let num = setup_numeral();
         let category = CATEGORY_PROFICIENT;
 
         noun.get_question(&category);
@@ -1030,6 +1123,7 @@ mod test {
         verb.get_question(&category);
         adv.get_question(&category);
         pr.get_question(&category);
+        num.get_question(&category);
     }
 
     #[test]

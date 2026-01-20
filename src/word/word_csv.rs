@@ -14,15 +14,18 @@
 //! - `ADJECTIVE`: word, translation, class, plural, neuter;
 //! - `VERB`: word, translation, class, present, past, perfect;
 //! - `ADVERB`: word, translation, class;
-//! - `PER_PRONOUN`: word, translation, class, object.
+//! - `PER_PRONOUN`: word, translation, class, object;
+//! - `NUMERAL`: word, translation, class, ordinal.
 //!
 //! # Examples
-//! - Noun: `ord,word,NOUN,ordet,ord,orden,,,,,`;
-//! - Adjective: `grön,green,ADJECTIVE,,gröna,,grönt,,,,`;
-//! - Verb: `studera,study,VERB,,,,,studerar,studerade,studerat,`;
-//! - Adverb: `inte,not,ADVERB,,,,,,,,`;
-//! - Personal pronoun: `hon,she,PER_PRONOUN,,,,,,,,henne`.
+//! - Noun: `ord,word,NOUN,ordet,ord,orden,,,,,,`;
+//! - Adjective: `grön,green,ADJECTIVE,,gröna,,grönt,,,,,`;
+//! - Verb: `studera,study,VERB,,,,,studerar,studerade,studerat,,`;
+//! - Adverb: `inte,not,ADVERB,,,,,,,,,`;
+//! - Personal pronoun: `hon,she,PER_PRONOUN,,,,,,,,henne,`;
+//! - Numeral: `två,two,NUMERAL,,,,,,,,,andra`.
 
+use super::Numeral;
 use super::question::Pick;
 use crate::word::Adjective;
 use crate::word::Adverb;
@@ -56,6 +59,8 @@ pub struct WordCSV {
     perfect: Option<String>,
     #[serde(rename = "object(per_pronoun)")]
     object: Option<String>,
+    #[serde(rename = "ordinal(numeral)")]
+    ordinal: Option<String>,
 }
 /// Transforms WordCSV to Word
 pub fn word_csv_to_word(word_csv: WordCSV) -> Result<Box<dyn Pick>, &'static str> {
@@ -76,6 +81,8 @@ pub fn word_csv_to_word(word_csv: WordCSV) -> Result<Box<dyn Pick>, &'static str
             .map_or(Err("Error parsing personal pronoun"), |word| {
                 Ok(Box::new(word))
             }),
+        "NUMERAL" => word_csv_to_numeral(word_csv)
+            .map_or(Err("Error parsing numeral"), |word| Ok(Box::new(word))),
         &_ => Err("Wrong class"),
     }
 }
@@ -145,6 +152,14 @@ fn word_csv_to_personal_pronoun(word_csv: WordCSV) -> Option<PersonalPronoun> {
     }
 }
 
+fn word_csv_to_numeral(word_csv: WordCSV) -> Option<Numeral> {
+    if let Some(ordinal) = word_csv.ordinal {
+        Some(Numeral::new(word_csv.word, word_csv.translation, ordinal))
+    } else {
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -162,6 +177,7 @@ mod tests {
             past: Some(String::from("i")),
             perfect: Some(String::from("j")),
             object: Some(String::from("k")),
+            ordinal: Some(String::from("l")),
         }
     }
 
@@ -225,6 +241,7 @@ mod tests {
         correct.past = None;
         correct.perfect = None;
         correct.object = None;
+        correct.ordinal = None;
 
         let act1 = word_csv_to_noun(correct);
         assert!(
@@ -239,6 +256,7 @@ mod tests {
         correct.past = None;
         correct.perfect = None;
         correct.object = None;
+        correct.ordinal = None;
 
         let act2 = word_csv_to_word(correct);
         assert!(
@@ -277,6 +295,7 @@ mod tests {
         correct.past = None;
         correct.perfect = None;
         correct.object = None;
+        correct.ordinal = None;
 
         let act1 = word_csv_to_adjective(correct);
         assert!(
@@ -292,6 +311,7 @@ mod tests {
         correct.past = None;
         correct.perfect = None;
         correct.object = None;
+        correct.ordinal = None;
 
         let act2 = word_csv_to_word(correct);
         assert!(
@@ -339,6 +359,7 @@ mod tests {
         correct.definite_plural = None;
         correct.neuter = None;
         correct.object = None;
+        correct.ordinal = None;
 
         let act1 = word_csv_to_verb(correct);
         assert!(
@@ -353,6 +374,7 @@ mod tests {
         correct.definite_plural = None;
         correct.neuter = None;
         correct.object = None;
+        correct.ordinal = None;
 
         let act2 = word_csv_to_word(correct);
         assert!(
@@ -373,6 +395,7 @@ mod tests {
         correct.past = None;
         correct.perfect = None;
         correct.object = None;
+        correct.ordinal = None;
 
         let act1 = word_csv_to_adverb(correct);
         assert!(act1.is_some(), "word_csv_to_adverb cannot create an adverb");
@@ -387,6 +410,7 @@ mod tests {
         correct.past = None;
         correct.perfect = None;
         correct.object = None;
+        correct.ordinal = None;
 
         let act2 = word_csv_to_word(correct);
         assert!(act2.is_ok(), "word_csv_to_word cannot create an adverb");
@@ -415,6 +439,7 @@ mod tests {
         correct.present = None;
         correct.past = None;
         correct.perfect = None;
+        correct.ordinal = None;
 
         let act1 = word_csv_to_personal_pronoun(correct);
         assert!(
@@ -431,11 +456,61 @@ mod tests {
         correct.present = None;
         correct.past = None;
         correct.perfect = None;
+        correct.ordinal = None;
 
         let act2 = word_csv_to_word(correct);
         assert!(
             act2.is_ok(),
             "word_csv_to_word cannot create a pronoun with possessive form"
+        );
+    }
+
+    #[test]
+    fn cannot_create_numeral_without_ordinal_form() {
+        let mut incorrect = setup_word_csv();
+        incorrect.ordinal = None;
+
+        let act = word_csv_to_numeral(incorrect);
+        assert!(
+            act.is_none(),
+            "Created a personal pronoun without objective form"
+        );
+    }
+
+    #[test]
+    fn can_create_numeral_with_ordinal() {
+        let mut correct = setup_word_csv();
+        correct.class = String::from("NUMERAL");
+        correct.definite_singular = None;
+        correct.plural = None;
+        correct.definite_plural = None;
+        correct.neuter = None;
+        correct.present = None;
+        correct.past = None;
+        correct.perfect = None;
+        correct.object = None;
+
+        let act1 = word_csv_to_numeral(correct);
+        assert!(
+            act1.is_some(),
+            "word_csv_to_numeral cannot create a pronoun with ordinal form"
+        );
+
+        let mut correct = setup_word_csv();
+        correct.class = String::from("NUMERAL");
+        correct.definite_singular = None;
+        correct.plural = None;
+        correct.definite_plural = None;
+        correct.neuter = None;
+        correct.present = None;
+        correct.past = None;
+        correct.perfect = None;
+        correct.object = None;
+
+        let act2 = word_csv_to_word(correct);
+        assert!(
+            act2.is_ok(),
+            "word_csv_to_word cannot create a numeral with ordinal form"
         );
     }
 }
