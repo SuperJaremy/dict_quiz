@@ -43,6 +43,10 @@ pub struct WordCSV {
     translation: String,
     #[serde(rename = "class")]
     class: String,
+    #[serde(rename = "meaning")]
+    meaning: String,
+    #[serde(rename = "example")]
+    example: String,
     #[serde(rename = "definite_s(noun)")]
     definite_singular: Option<String>,
     #[serde(rename = "plural(noun;adj)")]
@@ -95,6 +99,8 @@ fn word_csv_to_noun(word_csv: WordCSV) -> Option<Noun> {
         Some(Noun::new(
             word_csv.word,
             word_csv.translation,
+            word_csv.meaning,
+            word_csv.example,
             definite_s,
             plural_i,
             definite_p,
@@ -111,6 +117,8 @@ fn word_csv_to_adjective(word_csv: WordCSV) -> Option<Adjective> {
         Some(Adjective::new(
             word_csv.word,
             word_csv.translation,
+            word_csv.meaning,
+            word_csv.example,
             neuter,
             plural,
         ))
@@ -127,6 +135,8 @@ fn word_csv_to_verb(word_csv: WordCSV) -> Option<Verb> {
         Some(Verb::new(
             word_csv.word,
             word_csv.translation,
+            word_csv.meaning,
+            word_csv.example,
             present,
             past,
             perfect,
@@ -137,7 +147,7 @@ fn word_csv_to_verb(word_csv: WordCSV) -> Option<Verb> {
 }
 
 fn word_csv_to_adverb(word_csv: WordCSV) -> Option<Adverb> {
-    Some(Adverb::new(word_csv.word, word_csv.translation))
+    Some(Adverb::new(word_csv.word, word_csv.translation, word_csv.meaning, word_csv.example))
 }
 
 fn word_csv_to_personal_pronoun(word_csv: WordCSV) -> Option<PersonalPronoun> {
@@ -145,6 +155,8 @@ fn word_csv_to_personal_pronoun(word_csv: WordCSV) -> Option<PersonalPronoun> {
         Some(PersonalPronoun::new(
             word_csv.word,
             word_csv.translation,
+            word_csv.meaning,
+            word_csv.example,
             object,
         ))
     } else {
@@ -154,7 +166,7 @@ fn word_csv_to_personal_pronoun(word_csv: WordCSV) -> Option<PersonalPronoun> {
 
 fn word_csv_to_numeral(word_csv: WordCSV) -> Option<Numeral> {
     if let Some(ordinal) = word_csv.ordinal {
-        Some(Numeral::new(word_csv.word, word_csv.translation, ordinal))
+        Some(Numeral::new(word_csv.word, word_csv.translation, word_csv.meaning, word_csv.example, ordinal))
     } else {
         None
     }
@@ -169,15 +181,17 @@ mod tests {
             word: String::from("a"),
             translation: String::from("b"),
             class: String::from("c"),
-            definite_singular: Some(String::from("d")),
-            plural: Some(String::from("e")),
-            definite_plural: Some(String::from("f")),
-            neuter: Some(String::from("g")),
-            present: Some(String::from("h")),
-            past: Some(String::from("i")),
-            perfect: Some(String::from("j")),
-            object: Some(String::from("k")),
-            ordinal: Some(String::from("l")),
+            meaning: String::from("d"),
+            example: String::from("e"),
+            definite_singular: Some(String::from("f")),
+            plural: Some(String::from("g")),
+            definite_plural: Some(String::from("h")),
+            neuter: Some(String::from("i")),
+            present: Some(String::from("j")),
+            past: Some(String::from("k")),
+            perfect: Some(String::from("l")),
+            object: Some(String::from("m")),
+            ordinal: Some(String::from("n")),
         }
     }
 

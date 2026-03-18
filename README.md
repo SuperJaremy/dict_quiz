@@ -23,9 +23,7 @@ engaging.
 The dictionary is a csv file where the words, which you want to appear in 
 your quiz, as well as all their forms are listed (see `res/dictionary.csv`).
 Each entry must have one of the supported classes.
-
-Unfortunately, as of now it's impossible to add context to the words,
-so adding homographs to your dictionary is discouraged.
+The meaning and examples of usage can be added to `.csv` file.
 
 ### Word Classes
 For now the supported word classes are:

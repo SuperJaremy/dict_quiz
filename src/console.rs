@@ -46,6 +46,8 @@ impl View for Console {
     fn ask_question(&self, question: Question) -> Result<bool, Box<dyn Error>> {
         Console::clear_screen()?;
         println!("Word: {}", question.get_base());
+        println!("Meaning: {}", question.get_meaning());
+        println!("Example: {}", question.get_example());
         println!("Question: {}", question.get_question());
 
         let mut answ = String::new();
