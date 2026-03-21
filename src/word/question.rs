@@ -531,45 +531,45 @@ pub trait Pick: super::Forms {
 
 impl Pick for Noun {
     fn get_question(&self, category: &Category) -> Question {
-        QuestionTemplate::random_template(&NOUN_QUESTIONS, category).question_from_template(&self)
+        QuestionTemplate::random_template(&NOUN_QUESTIONS, category).question_from_template(self)
     }
 }
 
 impl Pick for Adjective {
     fn get_question(&self, category: &Category) -> Question {
         QuestionTemplate::random_template(&ADJECTIVE_QUESTIONS, category)
-            .question_from_template(&self)
+            .question_from_template(self)
     }
 }
 
 impl Pick for Verb {
     fn get_question(&self, category: &Category) -> Question {
-        QuestionTemplate::random_template(&VERB_QUESTIONS, category).question_from_template(&self)
+        QuestionTemplate::random_template(&VERB_QUESTIONS, category).question_from_template(self)
     }
 }
 
 impl Pick for Adverb {
     fn get_question(&self, category: &Category) -> Question {
-        QuestionTemplate::random_template(&ADVERB_QUESTIONS, category).question_from_template(&self)
+        QuestionTemplate::random_template(&ADVERB_QUESTIONS, category).question_from_template(self)
     }
 }
 
 impl Pick for PersonalPronoun {
     fn get_question(&self, category: &Category) -> Question {
-        QuestionTemplate::random_template(&PRONOUN_QUESTIONS, category)
-            .question_from_template(&self)
+        QuestionTemplate::random_template(&PRONOUN_QUESTIONS, category).question_from_template(self)
     }
 }
 
 impl Pick for Numeral {
     fn get_question(&self, category: &Category) -> Question {
-        QuestionTemplate::random_template(&NUMERAL_QUESTIONS, category)
-            .question_from_template(&self)
+        QuestionTemplate::random_template(&NUMERAL_QUESTIONS, category).question_from_template(self)
     }
 }
 
 #[cfg(test)]
 mod test {
+    use crate::word::WordGeneral;
+
     use super::{
         categories::{CATEGORY_ADVANCED, CATEGORY_BEGINNER, CATEGORY_PROFICIENT},
         *,
@@ -577,10 +577,12 @@ mod test {
 
     fn setup_noun() -> Noun {
         Noun {
-            word: String::from("word_noun"),
-            translation: String::from("translation_noun"),
-            meaning: String::from("meaning_noun"),
-            example: String::from("example_noun"),
+            general: WordGeneral {
+                word: String::from("word_noun"),
+                translation: String::from("translation_noun"),
+                meaning: String::from("meaning_noun"),
+                example: String::from("example_noun"),
+            },
             definite_singular: String::from("definite_singular"),
             indefinite_plural: String::from("indefinite_plural"),
             definite_plural: String::from("definite_plural"),
@@ -589,10 +591,12 @@ mod test {
 
     fn setup_adjective() -> Adjective {
         Adjective {
-            word: String::from("word_adj"),
-            translation: String::from("translation_adj"),
-            meaning: String::from("meaning_adj"),
-            example: String::from("example_adj"),
+            general: WordGeneral {
+                word: String::from("word_adj"),
+                translation: String::from("translation_adj"),
+                meaning: String::from("meaning_adj"),
+                example: String::from("example_adj"),
+            },
             neuter: String::from("neuter"),
             plural: String::from("plural"),
         }
@@ -600,10 +604,12 @@ mod test {
 
     fn setup_verb() -> Verb {
         Verb {
-            word: String::from("word_verb"),
-            translation: String::from("translation_verb"),
-            meaning: String::from("meaning_verb"),
-            example: String::from("example_verb"),
+            general: WordGeneral {
+                word: String::from("word_verb"),
+                translation: String::from("translation_verb"),
+                meaning: String::from("meaning_verb"),
+                example: String::from("example_verb"),
+            },
             present: String::from("present"),
             past: String::from("past"),
             perfect: String::from("perfect"),
@@ -612,35 +618,47 @@ mod test {
 
     fn setup_adverb() -> Adverb {
         Adverb {
-            word: String::from("word_adv"),
-            translation: String::from("translation_adv"),
-            meaning: String::from("meaning_adv"),
-            example: String::from("example_adv"),
+            general: WordGeneral {
+                word: String::from("word_adv"),
+                translation: String::from("translation_adv"),
+                meaning: String::from("meaning_adv"),
+                example: String::from("example_adv"),
+            },
         }
     }
 
     fn setup_personal_pronoun() -> PersonalPronoun {
         PersonalPronoun {
-            word: String::from("word_pr"),
-            translation: String::from("translation_pr"),
-            meaning: String::from("meaning_pr"),
-            example: String::from("example_pr"),
+            general: WordGeneral {
+                word: String::from("word_pr"),
+                translation: String::from("translation_pr"),
+                meaning: String::from("meaning_pr"),
+                example: String::from("example_pr"),
+            },
             object: String::from("object"),
         }
     }
 
     fn setup_numeral() -> Numeral {
         Numeral {
-            word: String::from("word_num"),
-            transaltion: String::from("translation_num"),
-            meaning: String::from("meaning_num"),
-            example: String::from("example_num"),
+            general: WordGeneral {
+                word: String::from("word_num"),
+                translation: String::from("translation_num"),
+                meaning: String::from("meaning_num"),
+                example: String::from("example_num"),
+            },
             ordinal: String::from("ordinal"),
         }
     }
 
-    fn test_template<T>(exp_base: &str, exp_answer: &str, exp_meaning: &str, exp_example: &str, template: &QuestionTemplate<T>, forms: &T)
-    where
+    fn test_template<T>(
+        exp_base: &str,
+        exp_answer: &str,
+        exp_meaning: &str,
+        exp_example: &str,
+        template: &QuestionTemplate<T>,
+        forms: &T,
+    ) where
         T: Forms,
     {
         let expected = Question {
@@ -883,48 +901,84 @@ mod test {
     fn test_adj_base_question_neuter() {
         let adj = setup_adjective();
         println!("adjective base from neuter");
-        test_template("neuter", "word_adj", "meaning_adj",
-            "example_adj", &ADJECTIVE_BASE_QUESTION_NEUTER, &adj);
+        test_template(
+            "neuter",
+            "word_adj",
+            "meaning_adj",
+            "example_adj",
+            &ADJECTIVE_BASE_QUESTION_NEUTER,
+            &adj,
+        );
     }
 
     #[test]
     fn test_adj_base_question_plural() {
         let adj = setup_adjective();
         println!("adjective base from plural");
-        test_template("plural", "word_adj", "meaning_adj",
-            "example_adj", &ADJECTIVE_BASE_QUESTION_PLURAL, &adj);
+        test_template(
+            "plural",
+            "word_adj",
+            "meaning_adj",
+            "example_adj",
+            &ADJECTIVE_BASE_QUESTION_PLURAL,
+            &adj,
+        );
     }
 
     #[test]
     fn test_adj_neuter_question_base() {
         let adj = setup_adjective();
         println!("adjective neuter from base");
-        test_template("word_adj", "neuter", "meaning_adj",
-            "example_adj", &ADJECTIVE_NEUTER_QUESTION_BASE, &adj);
+        test_template(
+            "word_adj",
+            "neuter",
+            "meaning_adj",
+            "example_adj",
+            &ADJECTIVE_NEUTER_QUESTION_BASE,
+            &adj,
+        );
     }
 
     #[test]
     fn test_adj_neuter_question_plural() {
         let adj = setup_adjective();
         println!("adjective neuter from plural");
-        test_template("plural", "neuter", "meaning_adj",
-            "example_adj", &ADJECTIVE_NEUTER_QUESTION_PLURAL, &adj);
+        test_template(
+            "plural",
+            "neuter",
+            "meaning_adj",
+            "example_adj",
+            &ADJECTIVE_NEUTER_QUESTION_PLURAL,
+            &adj,
+        );
     }
 
     #[test]
     fn test_adj_plural_quesiton_base() {
         let adj = setup_adjective();
         println!("adjective plural from base");
-        test_template("word_adj", "plural", "meaning_adj",
-            "example_adj", &ADJECTIVE_PLURAL_QUESTION_BASE, &adj);
+        test_template(
+            "word_adj",
+            "plural",
+            "meaning_adj",
+            "example_adj",
+            &ADJECTIVE_PLURAL_QUESTION_BASE,
+            &adj,
+        );
     }
 
     #[test]
     fn test_adj_plural_question_neuter() {
         let adj = setup_adjective();
         println!("adjective plural from neuter");
-        test_template("neuter", "plural", "meaning_adj",
-            "example_adj", &ADJECTIVE_PLURAL_QUESTION_NEUTER, &adj);
+        test_template(
+            "neuter",
+            "plural",
+            "meaning_adj",
+            "example_adj",
+            &ADJECTIVE_PLURAL_QUESTION_NEUTER,
+            &adj,
+        );
     }
 
     #[test]
@@ -959,96 +1013,168 @@ mod test {
     fn test_verb_base_question_present() {
         let verb = setup_verb();
         println!("verb base from present");
-        test_template("present", "word_verb", "meaning_verb",
-            "example_verb", &VERB_BASE_QUESTION_PRESENT, &verb);
+        test_template(
+            "present",
+            "word_verb",
+            "meaning_verb",
+            "example_verb",
+            &VERB_BASE_QUESTION_PRESENT,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_base_question_past() {
         let verb = setup_verb();
         println!("verb base from past");
-        test_template("past", "word_verb", "meaning_verb",
-            "example_verb", &VERB_BASE_QUESTION_PAST, &verb);
+        test_template(
+            "past",
+            "word_verb",
+            "meaning_verb",
+            "example_verb",
+            &VERB_BASE_QUESTION_PAST,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_base_question_perfect() {
         let verb = setup_verb();
         println!("verb base from perfect");
-        test_template("perfect", "word_verb", "meaning_verb",
-            "example_verb", &VERB_BASE_QUESTION_PERFECT, &verb);
+        test_template(
+            "perfect",
+            "word_verb",
+            "meaning_verb",
+            "example_verb",
+            &VERB_BASE_QUESTION_PERFECT,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_present_question_base() {
         let verb = setup_verb();
         println!("verb present from base");
-        test_template("word_verb", "present", "meaning_verb",
-            "example_verb", &VERB_PRESENT_QUESTION_BASE, &verb);
+        test_template(
+            "word_verb",
+            "present",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PRESENT_QUESTION_BASE,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_present_question_past() {
         let verb = setup_verb();
         println!("verb present from past");
-        test_template("past", "present", "meaning_verb",
-            "example_verb", &VERB_PRESENT_QUESTION_PAST, &verb);
+        test_template(
+            "past",
+            "present",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PRESENT_QUESTION_PAST,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_present_question_perfect() {
         let verb = setup_verb();
         println!("verb present from perfect");
-        test_template("perfect", "present", "meaning_verb",
-            "example_verb", &VERB_PRESENT_QUESTION_PERFECT, &verb);
+        test_template(
+            "perfect",
+            "present",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PRESENT_QUESTION_PERFECT,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_past_question_base() {
         let verb = setup_verb();
         println!("verb past from base");
-        test_template("word_verb", "past", "meaning_verb",
-            "example_verb", &VERB_PAST_QUESTION_BASE, &verb);
+        test_template(
+            "word_verb",
+            "past",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PAST_QUESTION_BASE,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_past_question_present() {
         let verb = setup_verb();
         println!("verb past from present");
-        test_template("present", "past", "meaning_verb",
-            "example_verb", &VERB_PAST_QUESTION_PRESENT, &verb);
+        test_template(
+            "present",
+            "past",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PAST_QUESTION_PRESENT,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_past_question_perfect() {
         let verb = setup_verb();
         println!("verb past from perfect");
-        test_template("perfect", "past", "meaning_verb",
-            "example_verb", &VERB_PAST_QUESTION_PERFECT, &verb);
+        test_template(
+            "perfect",
+            "past",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PAST_QUESTION_PERFECT,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_perfect_question_base() {
         let verb = setup_verb();
         println!("verb perfect from base");
-        test_template("word_verb", "perfect", "meaning_verb",
-            "example_verb", &VERB_PERFECT_QUESTION_BASE, &verb);
+        test_template(
+            "word_verb",
+            "perfect",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PERFECT_QUESTION_BASE,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_perfect_question_present() {
         let verb = setup_verb();
         println!("verb perfect from present");
-        test_template("present", "perfect", "meaning_verb",
-            "example_verb", &VERB_PERFECT_QUESTION_PRESENT, &verb);
+        test_template(
+            "present",
+            "perfect",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PERFECT_QUESTION_PRESENT,
+            &verb,
+        );
     }
 
     #[test]
     fn test_verb_perfect_question_past() {
         let verb = setup_verb();
         println!("verb perfect from past");
-        test_template("past", "perfect", "meaning_verb",
-            "example_verb", &VERB_PERFECT_QUESTION_PAST, &verb);
+        test_template(
+            "past",
+            "perfect",
+            "meaning_verb",
+            "example_verb",
+            &VERB_PERFECT_QUESTION_PAST,
+            &verb,
+        );
     }
 
     #[test]
@@ -1111,16 +1237,28 @@ mod test {
     fn test_p_pr_base_question_object() {
         let pr = setup_personal_pronoun();
         println!("personal pronoun from objective to subjective");
-        test_template("object", "word_pr", "meaning_pr",
-            "example_pr", &PER_PRONOUN_BASE_QUESTION_OBJECT, &pr);
+        test_template(
+            "object",
+            "word_pr",
+            "meaning_pr",
+            "example_pr",
+            &PER_PRONOUN_BASE_QUESTION_OBJECT,
+            &pr,
+        );
     }
 
     #[test]
     fn test_p_pr_object_quesiton_base() {
         let pr = setup_personal_pronoun();
         println!("personal pronoun from subjective to objective");
-        test_template("word_pr", "object", "meaning_pr",
-            "example_pr", &PER_PRONOUN_OBJECT_QUESTION_BASE, &pr);
+        test_template(
+            "word_pr",
+            "object",
+            "meaning_pr",
+            "example_pr",
+            &PER_PRONOUN_OBJECT_QUESTION_BASE,
+            &pr,
+        );
     }
 
     #[test]
@@ -1155,16 +1293,28 @@ mod test {
     fn test_numeral_base_question_ordinal() {
         let num = setup_numeral();
         println!("numeral from ordinal to base");
-        test_template("ordinal", "word_num", "meaning_num",
-            "example_num", &NUMERAL_BASE_QUESTION_ORDINAL, &num);
+        test_template(
+            "ordinal",
+            "word_num",
+            "meaning_num",
+            "example_num",
+            &NUMERAL_BASE_QUESTION_ORDINAL,
+            &num,
+        );
     }
 
     #[test]
     fn test_numeral_ordinal_quesiton_base() {
         let num = setup_numeral();
         println!("numeral from ordinal to base");
-        test_template("word_num", "ordinal", "meaning_num",
-            "example_num", &NUMERAL_ORDINAL_QUESTION_BASE, &num);
+        test_template(
+            "word_num",
+            "ordinal",
+            "meaning_num",
+            "example_num",
+            &NUMERAL_ORDINAL_QUESTION_BASE,
+            &num,
+        );
     }
 
     #[test]

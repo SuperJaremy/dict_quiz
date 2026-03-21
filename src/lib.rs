@@ -61,7 +61,7 @@ pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
         config.question_num = questions_num;
 
         let mut rng = SmallRng::from_os_rng();
-        let questions = (&dict[..])
+        let questions = dict[..]
             .choose_multiple(&mut rng, questions_num)
             .map(|word| (word, word.get_question(&config.category)));
 
@@ -134,7 +134,7 @@ impl QuizConfig {
     pub fn new(question_num: u32, category: Category) -> QuizConfig {
         QuizConfig {
             question_num: question_num as usize,
-            category: category,
+            category,
         }
     }
 }

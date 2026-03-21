@@ -53,15 +53,15 @@ impl View for Console {
         let mut answ = String::new();
         io::stdin().read_line(&mut answ)?;
 
-        let res;
-        if !question.check_answer(&answ) {
+        
+        let res = if !question.check_answer(&answ) {
             println!("❌Incorrect. The correct answer is");
             println!("{}", question.get_answer());
-            res = false;
+            false
         } else {
             println!("✅Correct!");
-            res = true;
-        }
+            true
+        };
 
         Console::wait_for_input()?;
 
@@ -114,7 +114,7 @@ impl View for Console {
 
         Ok(QuizConfig {
             question_num: number.expect("number is set in the while loop"),
-            category: category,
+            category,
         })
     }
 

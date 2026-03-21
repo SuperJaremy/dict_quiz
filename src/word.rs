@@ -41,13 +41,18 @@ pub trait Forms {
     }
 }
 
-/// All noun word forms
-#[derive(Debug, PartialEq)]
-pub struct Noun {
+#[derive(PartialEq, Debug)]
+struct WordGeneral {
     word: String,
     translation: String,
     meaning: String,
     example: String,
+}
+
+/// All noun word forms
+#[derive(Debug, PartialEq)]
+pub struct Noun {
+    general: WordGeneral,
     definite_singular: String,
     indefinite_plural: String,
     definite_plural: String,
@@ -56,10 +61,7 @@ pub struct Noun {
 /// All adjective word forms
 #[derive(PartialEq, Debug)]
 pub struct Adjective {
-    word: String,
-    translation: String,
-    meaning: String,
-    example: String,
+    general: WordGeneral,
     neuter: String,
     plural: String,
 }
@@ -67,10 +69,7 @@ pub struct Adjective {
 /// All verb word forms
 #[derive(PartialEq, Debug)]
 pub struct Verb {
-    word: String,
-    translation: String,
-    meaning: String,
-    example: String,
+    general: WordGeneral,
     present: String,
     past: String,
     perfect: String,
@@ -79,27 +78,18 @@ pub struct Verb {
 /// All adverb word forms
 #[derive(PartialEq, Debug)]
 pub struct Adverb {
-    word: String,
-    translation: String,
-    meaning: String,
-    example: String,
+    general: WordGeneral,
 }
 
 /// All personal pronoun word forms
 #[derive(PartialEq, Debug)]
 pub struct PersonalPronoun {
-    word: String,
-    translation: String,
-    meaning: String,
-    example: String,
+    general: WordGeneral,
     object: String,
 }
 
 pub struct Numeral {
-    word: String,
-    transaltion: String,
-    meaning: String,
-    example: String,
+    general: WordGeneral,
     ordinal: String,
 }
 
@@ -114,10 +104,12 @@ impl Noun {
         definite_plural: String,
     ) -> Self {
         Noun {
-            word,
-            translation,
-            meaning,
-            example,
+            general: WordGeneral {
+                word,
+                translation,
+                meaning,
+                example,
+            },
             definite_singular,
             indefinite_plural,
             definite_plural,
@@ -139,31 +131,31 @@ impl Noun {
 
 impl Forms for Noun {
     fn get_word(&self) -> &str {
-        &self.word
+        &self.general.word
     }
 
     fn get_translation(&self) -> &str {
-        &self.translation
+        &self.general.translation
     }
 
     fn get_meaning(&self) -> &str {
-        &self.meaning
+        &self.general.meaning
     }
 
     fn get_example(&self) -> &str {
-        &self.example
+        &self.general.example
     }
 
-    fn get_forms<'a>(&'a self) -> Vec<(&'a str, &'a str)> {
-        let mut forms = Vec::new();
-        forms.push(("Word", self.get_word()));
-        forms.push(("Translation", self.get_translation()));
-        forms.push(("Meaning", self.get_meaning()));
-        forms.push(("Example", self.get_example()));
-        forms.push(("Definite Singular", self.get_definite_singular()));
-        forms.push(("Indefinite Plural", self.get_indefinite_plural()));
-        forms.push(("Definite Plural", self.get_definite_plural()));
-        forms
+    fn get_forms(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("Word", self.get_word()),
+            ("Translation", self.get_translation()),
+            ("Meaning", self.get_meaning()),
+            ("Example", self.get_example()),
+            ("Definite Singular", self.get_definite_singular()),
+            ("Indefinite Plural", self.get_indefinite_plural()),
+            ("Definite Plural", self.get_definite_plural()),
+        ]
     }
 }
 
@@ -177,10 +169,12 @@ impl Adjective {
         plural: String,
     ) -> Adjective {
         Adjective {
-            word,
-            translation,
-            meaning,
-            example,
+            general: WordGeneral {
+                word,
+                translation,
+                meaning,
+                example,
+            },
             neuter,
             plural,
         }
@@ -197,19 +191,19 @@ impl Adjective {
 
 impl Forms for Adjective {
     fn get_word(&self) -> &str {
-        &self.word
+        &self.general.word
     }
 
     fn get_translation(&self) -> &str {
-        &self.translation
+        &self.general.translation
     }
 
     fn get_meaning(&self) -> &str {
-        &self.meaning
+        &self.general.meaning
     }
 
     fn get_example(&self) -> &str {
-        &self.example
+        &self.general.example
     }
 
     fn get_forms(&self) -> Vec<(&str, &str)> {
@@ -235,10 +229,12 @@ impl Verb {
         perfect: String,
     ) -> Verb {
         Verb {
-            word,
-            translation,
-            meaning,
-            example,
+            general: WordGeneral {
+                word,
+                translation,
+                meaning,
+                example,
+            },
             present,
             past,
             perfect,
@@ -260,19 +256,19 @@ impl Verb {
 
 impl Forms for Verb {
     fn get_word(&self) -> &str {
-        &self.word
+        &self.general.word
     }
 
     fn get_translation(&self) -> &str {
-        &self.translation
+        &self.general.translation
     }
 
     fn get_meaning(&self) -> &str {
-        &self.meaning
+        &self.general.meaning
     }
 
     fn get_example(&self) -> &str {
-        &self.example
+        &self.general.example
     }
 
     fn get_forms(&self) -> Vec<(&str, &str)> {
@@ -291,29 +287,31 @@ impl Forms for Verb {
 impl Adverb {
     fn new(word: String, translation: String, meaning: String, example: String) -> Adverb {
         Adverb {
-            word,
-            translation,
-            meaning,
-            example,
+            general: WordGeneral {
+                word,
+                translation,
+                meaning,
+                example,
+            },
         }
     }
 }
 
 impl Forms for Adverb {
     fn get_word(&self) -> &str {
-        &self.word
+        &self.general.word
     }
 
     fn get_translation(&self) -> &str {
-        &self.translation
+        &self.general.translation
     }
 
     fn get_meaning(&self) -> &str {
-        &self.meaning
+        &self.general.meaning
     }
 
     fn get_example(&self) -> &str {
-        &self.example
+        &self.general.example
     }
 }
 
@@ -326,10 +324,12 @@ impl PersonalPronoun {
         object: String,
     ) -> PersonalPronoun {
         PersonalPronoun {
-            word,
-            translation,
-            meaning,
-            example,
+            general: WordGeneral {
+                word,
+                translation,
+                meaning,
+                example,
+            },
             object,
         }
     }
@@ -341,19 +341,19 @@ impl PersonalPronoun {
 
 impl Forms for PersonalPronoun {
     fn get_word(&self) -> &str {
-        &self.word
+        &self.general.word
     }
 
     fn get_translation(&self) -> &str {
-        &self.translation
+        &self.general.translation
     }
 
     fn get_meaning(&self) -> &str {
-        &self.meaning
+        &self.general.meaning
     }
 
     fn get_example(&self) -> &str {
-        &self.example
+        &self.general.example
     }
 
     fn get_forms(&self) -> Vec<(&str, &str)> {
@@ -370,16 +370,18 @@ impl Forms for PersonalPronoun {
 impl Numeral {
     fn new(
         word: String,
-        transaltion: String,
+        translation: String,
         meaning: String,
         example: String,
         ordinal: String,
     ) -> Numeral {
         Numeral {
-            word,
-            transaltion,
-            meaning,
-            example,
+            general: WordGeneral {
+                word,
+                translation,
+                meaning,
+                example,
+            },
             ordinal,
         }
     }
@@ -391,19 +393,19 @@ impl Numeral {
 
 impl Forms for Numeral {
     fn get_word(&self) -> &str {
-        &self.word
+        &self.general.word
     }
 
     fn get_translation(&self) -> &str {
-        &self.transaltion
+        &self.general.translation
     }
 
     fn get_meaning(&self) -> &str {
-        &self.meaning
+        &self.general.meaning
     }
 
     fn get_example(&self) -> &str {
-        &self.example
+        &self.general.example
     }
 
     fn get_forms(&self) -> Vec<(&str, &str)> {
