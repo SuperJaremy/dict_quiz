@@ -2,7 +2,7 @@
 
 use std::error::Error;
 
-use crate::{word::question::Question, QuizConfig, QuizResults};
+use crate::{word::question::Question, quiz::QuizConfig, quiz::QuizResults};
 
 pub trait View {
     /// Display the contents of the question, read the user's input and

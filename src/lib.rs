@@ -29,11 +29,10 @@
 //! or transofrm a word from one of its forms to another. The question order
 //! as well as the questions themselves are randomized.
 
+use crate::quiz::Quiz;
 use crate::word::question::Pick;
-use console::Console;
-use rand::prelude::IndexedRandom;
-use view::View;
-use word::question::categories::Category;
+use quiz::console::Console;
+use quiz::view::View;
 
 use crate::word::word_csv;
 use crate::word::word_csv::WordCSV;
@@ -42,47 +41,21 @@ use std::ffi::OsString;
 
 use std::error::Error;
 
-use rand::rngs::SmallRng;
-use rand::SeedableRng;
 
-pub mod console;
-pub mod view;
 pub mod word;
+pub mod quiz;
 
 /// Read the words from the specified csv dictionary and
 /// runs the quiz.
 pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
     let dict = read_csv(dict)?;
-    let view = Console::new();
+    let view: Box<dyn View> = Box::new(Console::new());
 
     loop {
-        let mut config = view.build_config()?;
-        let questions_num = cmp::min(dict.len(), config.question_num);
-        config.question_num = questions_num;
+        let config = view.build_config()?;
 
-        let mut rng = SmallRng::from_os_rng();
-        let questions = dict[..]
-            .choose_multiple(&mut rng, questions_num)
-            .map(|word| (word, word.get_question(&config.category)));
-
-        let mut wrongs = Vec::new();
-        let mut correct: u32 = 0;
-
-        for (w, q) in questions {
-            if view.ask_question(q)? {
-                correct += 1;
-            } else {
-                wrongs.push(w);
-            }
-        }
-
-        let result = QuizResults {
-            config: &config,
-            correct_num: correct,
-            wrong_answers: wrongs,
-        };
-
-        view.display_results(&result)?;
+        let quiz = Quiz::new(config, &dict, &view);
+        quiz.start()?;
 
         if !view.try_again()? {
             break;
@@ -117,31 +90,3 @@ fn read_csv(dict_path: OsString) -> Result<Vec<Box<dyn Pick>>, Box<dyn Error>> {
     Ok(res)
 }
 
-/// Configuration parameters for a quiz instanse.
-pub struct QuizConfig {
-    question_num: usize,
-    category: Category,
-}
-
-impl QuizConfig {
-    /// Creates a filled in configuration.
-    /// # Examples
-    /// ```
-    /// use dict_quiz::QuizConfig;
-    /// use dict_quiz::word::question::categories::CATEGORY_BEGINNER;
-    /// let conf = QuizConfig::new(10, CATEGORY_BEGINNER);
-    /// ```
-    pub fn new(question_num: u32, category: Category) -> QuizConfig {
-        QuizConfig {
-            question_num: question_num as usize,
-            category,
-        }
-    }
-}
-
-/// Quiz's end result to display
-pub struct QuizResults<'a, 'b> {
-    config: &'a QuizConfig,
-    correct_num: u32,
-    wrong_answers: Vec<&'b Box<dyn Pick>>,
-}

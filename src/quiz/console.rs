@@ -4,13 +4,13 @@ use std::io;
 
 use std::error::Error;
 
-use crate::view::View;
+use crate::quiz::view::View;
 use crate::word::question::categories::CATEGORY_ADVANCED;
 use crate::word::question::categories::CATEGORY_BEGINNER;
 use crate::word::question::categories::CATEGORY_PROFICIENT;
 use crate::word::question::Question;
-use crate::QuizConfig;
-use crate::QuizResults;
+use crate::quiz::QuizConfig;
+use crate::quiz::QuizResults;
 
 pub struct Console;
 
