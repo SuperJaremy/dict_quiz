@@ -7,7 +7,7 @@ use crate::{word::question::Question, quiz::QuizConfig, quiz::QuizResults};
 pub trait View {
     /// Display the contents of the question, read the user's input and
     /// compare it with the correct answer.
-    fn ask_question(&self, question: Question) -> Result<bool, Box<dyn Error>>;
+    fn ask_question(&self, question: &Question) -> Result<bool, Box<dyn Error>>;
     /// Prompt the user to set the quiz's parameters.
     fn build_config(&self) -> Result<QuizConfig, Box<dyn Error>>;
     /// Display the end results of the current quiz.

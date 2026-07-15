@@ -49,7 +49,7 @@ pub mod quiz;
 /// runs the quiz.
 pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
     let dict = read_csv(dict)?;
-    let view: Box<dyn View> = Box::new(Console::new());
+    let view = Console::new();
 
     loop {
         let config = view.build_config()?;

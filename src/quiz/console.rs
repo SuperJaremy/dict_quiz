@@ -43,7 +43,7 @@ impl Console {
 }
 
 impl View for Console {
-    fn ask_question(&self, question: Question) -> Result<bool, Box<dyn Error>> {
+    fn ask_question(&self, question: &Question) -> Result<bool, Box<dyn Error>> {
         Console::clear_screen()?;
         println!("Word: {}", question.get_base());
         println!("Meaning: {}", question.get_meaning());
@@ -121,7 +121,7 @@ impl View for Console {
     fn display_results(&self, results: &QuizResults) -> Result<(), Box<dyn Error>> {
         Console::clear_screen()?;
         println!("Your results:");
-        let total = results.config.question_num;
+        let total = results.quiz.0.config.question_num;
         let correct = results.correct_num as usize;
         println!("Score: {correct} / {total}");
 
