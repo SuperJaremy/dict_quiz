@@ -14,6 +14,12 @@ use crate::quiz::QuizResults;
 
 pub struct Console;
 
+impl Default for Console {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Console {
     fn clear_screen() -> Result<(), Box<dyn Error>> {
         clearscreen::clear()?;
