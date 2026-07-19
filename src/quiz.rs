@@ -21,7 +21,7 @@ impl QuizConfig {
     /// Creates a filled in configuration.
     /// # Examples
     /// ```
-    /// use dict_quiz::QuizConfig;
+    /// use dict_quiz::quiz::QuizConfig;
     /// use dict_quiz::word::question::categories::CATEGORY_BEGINNER;
     /// let conf = QuizConfig::new(10, CATEGORY_BEGINNER);
     /// ```

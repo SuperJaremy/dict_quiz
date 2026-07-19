@@ -39,7 +39,7 @@ impl Console {
     /// there should be only one active instance.
     /// #Examples
     /// ```
-    /// use dict_quiz::console::Console;
+    /// use dict_quiz::quiz::console::Console;
     ///
     /// let console = Console::new();
     /// ```
