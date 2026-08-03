@@ -35,6 +35,10 @@ pub mod categories {
         apply: |property| (S_T_E_FILTER.filter)(property),
     };
 
+    pub const CATEGORY_INTERMEDIATE: Category = Category {
+        apply: |property| (E_T_S_FILTER.filter)(property),
+    };
+
     pub const CATEGORY_ADVANCED: Category = Category {
         apply: |property| (E_T_S_FILTER.filter)(property) || (S_T_E_FILTER.filter)(property),
     };
@@ -571,7 +575,9 @@ mod test {
     use crate::word::WordGeneral;
 
     use super::{
-        categories::{CATEGORY_ADVANCED, CATEGORY_BEGINNER, CATEGORY_PROFICIENT},
+        categories::{
+            CATEGORY_ADVANCED, CATEGORY_BEGINNER, CATEGORY_INTERMEDIATE, CATEGORY_PROFICIENT,
+        },
         *,
     };
 
@@ -1326,6 +1332,24 @@ mod test {
         let pr = setup_personal_pronoun();
         let num = setup_numeral();
         let category = CATEGORY_BEGINNER;
+
+        noun.get_question(&category);
+        adj.get_question(&category);
+        verb.get_question(&category);
+        adv.get_question(&category);
+        pr.get_question(&category);
+        num.get_question(&category);
+    }
+
+    #[test]
+    fn test_pick_intermediate() {
+        let noun = setup_noun();
+        let adj = setup_adjective();
+        let verb = setup_verb();
+        let adv = setup_adverb();
+        let pr = setup_personal_pronoun();
+        let num = setup_numeral();
+        let category = CATEGORY_INTERMEDIATE;
 
         noun.get_question(&category);
         adj.get_question(&category);

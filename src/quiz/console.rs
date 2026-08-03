@@ -4,13 +4,14 @@ use std::io;
 
 use std::error::Error;
 
-use crate::quiz::view::View;
-use crate::word::question::categories::CATEGORY_ADVANCED;
-use crate::word::question::categories::CATEGORY_BEGINNER;
-use crate::word::question::categories::CATEGORY_PROFICIENT;
-use crate::word::question::Question;
 use crate::quiz::QuizConfig;
 use crate::quiz::QuizResults;
+use crate::quiz::view::View;
+use crate::word::question::Question;
+use crate::word::question::categories::CATEGORY_ADVANCED;
+use crate::word::question::categories::CATEGORY_BEGINNER;
+use crate::word::question::categories::CATEGORY_INTERMEDIATE;
+use crate::word::question::categories::CATEGORY_PROFICIENT;
 
 pub struct Console;
 
@@ -59,7 +60,6 @@ impl View for Console {
         let mut answ = String::new();
         io::stdin().read_line(&mut answ)?;
 
-        
         let res = if !question.check_answer(&answ) {
             println!("❌Incorrect. The correct answer is");
             println!("{}", question.get_answer());
@@ -94,7 +94,7 @@ impl View for Console {
         }
 
         Console::clear_screen()?;
-        println!("Choose difficulty level [1-3]:");
+        println!("Choose difficulty level [1-4]:");
 
         let mut level: Option<i32> = None;
 
@@ -102,9 +102,9 @@ impl View for Console {
             let mut n = String::new();
             io::stdin().read_line(&mut n)?;
             let n: i32 = match n.trim().parse() {
-                Ok(level) if level < 4 && level > 0 => level,
+                Ok(level) if level < 5 && level > 0 => level,
                 _ => {
-                    println!("Type in a number, 0 < number < 4");
+                    println!("Type in a number, 0 < number < 5");
                     continue;
                 }
             };
@@ -113,8 +113,9 @@ impl View for Console {
 
         let category = match level {
             Some(1) => CATEGORY_BEGINNER,
-            Some(2) => CATEGORY_ADVANCED,
-            Some(3) => CATEGORY_PROFICIENT,
+            Some(2) => CATEGORY_INTERMEDIATE,
+            Some(3) => CATEGORY_ADVANCED,
+            Some(4) => CATEGORY_PROFICIENT,
             _ => panic!("level is chosen in loop"),
         };
 
