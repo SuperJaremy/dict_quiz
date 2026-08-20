@@ -37,9 +37,9 @@ use quiz::view::View;
 use crate::word::word_csv;
 use crate::word::word_csv::WordCSV;
 use std::cmp;
-use std::ffi::OsString;
 
 use std::error::Error;
+use std::path::Path;
 
 
 pub mod word;
@@ -47,7 +47,7 @@ pub mod quiz;
 
 /// Read the words from the specified csv dictionary and
 /// runs the quiz.
-pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
+pub fn run(dict: &Path) -> Result<(), Box<dyn Error>> {
     let dict = read_csv(dict)?;
     let view = Console::new();
 
@@ -65,7 +65,7 @@ pub fn run(dict: OsString) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn read_csv(dict_path: OsString) -> Result<Vec<Box<dyn Pick>>, Box<dyn Error>> {
+fn read_csv(dict_path: &Path) -> Result<Vec<Box<dyn Pick>>, Box<dyn Error>> {
     let mut rdr = csv::Reader::from_path(dict_path)?;
     let mut res = Vec::new();
 

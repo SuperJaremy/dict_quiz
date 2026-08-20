@@ -1,19 +1,18 @@
-use std::{env, error::Error, ffi::OsString, process};
+use std::process;
+use clap::Parser;
 
-fn get_frist_arg() -> Result<OsString, Box<dyn Error>> {
-    match env::args_os().nth(1) {
-        None => Err(From::from("expected 1 arguemnt, but got none")),
-        Some(file_path) => Ok(file_path),
-    }
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    /// The path to a .csv dictionary
+    path: std::path::PathBuf,
 }
 
 fn main() {
-    let dict = get_frist_arg().unwrap_or_else(|err| {
-        eprintln!("Problem parsing arguments: {err}");
-        process::exit(1);
-    });
+    let cli = Cli::parse();
+    let dict_path = cli.path.as_path();
 
-    if let Err(err) = dict_quiz::run(dict) {
+    if let Err(err) = dict_quiz::run(dict_path) {
         eprintln!("Application error: {}", err);
         process::exit(1);
     }
