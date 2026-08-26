@@ -1,5 +1,6 @@
-use std::error::Error;
 use std::rc::Rc;
+
+use anyhow::Result;
 
 use crate::Pick;
 use crate::cmp;
@@ -69,7 +70,7 @@ impl<'a> Quiz<'_> {
         }))
     }
 
-    pub fn start(self) -> Result<(), Box<dyn Error>> {
+    pub fn start(self) -> Result<()> {
         let mut wrongs = Vec::new();
         let mut correct: u32 = 0;
 

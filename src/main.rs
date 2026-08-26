@@ -1,4 +1,4 @@
-use std::process;
+use anyhow::Result;
 use clap::Parser;
 
 #[derive(Parser)]
@@ -8,12 +8,10 @@ struct Cli {
     path: std::path::PathBuf,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let cli = Cli::parse();
     let dict_path = cli.path.as_path();
 
-    if let Err(err) = dict_quiz::run(dict_path) {
-        eprintln!("Application error: {}", err);
-        process::exit(1);
-    }
+    dict_quiz::run(dict_path)?;
+    Ok(())
 }

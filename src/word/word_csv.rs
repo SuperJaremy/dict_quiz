@@ -34,6 +34,9 @@ use crate::word::PersonalPronoun;
 use crate::word::Verb;
 use serde::Deserialize;
 
+use anyhow::Result;
+use anyhow::anyhow;
+
 /// csv representation of `dict_quiz::word::Word`.
 #[derive(Debug, Deserialize)]
 pub struct WordCSV {
@@ -67,27 +70,33 @@ pub struct WordCSV {
     ordinal: Option<String>,
 }
 /// Transforms WordCSV to Word
-pub fn word_csv_to_word(word_csv: WordCSV) -> Result<Box<dyn Pick>, &'static str> {
+pub fn word_csv_to_word(word_csv: WordCSV) -> Result<Box<dyn Pick>> {
     let class = &word_csv.class;
 
     match class.as_str() {
-        "NOUN" => {
-            word_csv_to_noun(word_csv).map_or(Err("Error parsing noun"), |word| Ok(Box::new(word)))
-        }
+        "NOUN" => word_csv_to_noun(word_csv).map_or(Err(anyhow!("Error parsing noun")), |word| {
+            Ok(Box::new(word))
+        }),
         "ADJECTIVE" => word_csv_to_adjective(word_csv)
-            .map_or(Err("Error parsing adjective"), |word| Ok(Box::new(word))),
-        "VERB" => {
-            word_csv_to_verb(word_csv).map_or(Err("Error parsing verb"), |word| Ok(Box::new(word)))
-        }
+            .map_or(Err(anyhow!("Error parsing adjective")), |word| {
+                Ok(Box::new(word))
+            }),
+        "VERB" => word_csv_to_verb(word_csv).map_or(Err(anyhow!("Error parsing verb")), |word| {
+            Ok(Box::new(word))
+        }),
         "ADVERB" => word_csv_to_adverb(word_csv)
-            .map_or(Err("Error parsing adverb"), |word| Ok(Box::new(word))),
+            .map_or(Err(anyhow!("Error parsing adverb")), |word| {
+                Ok(Box::new(word))
+            }),
         "PER_PRONOUN" => word_csv_to_personal_pronoun(word_csv)
-            .map_or(Err("Error parsing personal pronoun"), |word| {
+            .map_or(Err(anyhow!("Error parsing personal pronoun")), |word| {
                 Ok(Box::new(word))
             }),
         "NUMERAL" => word_csv_to_numeral(word_csv)
-            .map_or(Err("Error parsing numeral"), |word| Ok(Box::new(word))),
-        &_ => Err("Wrong class"),
+            .map_or(Err(anyhow!("Error parsing numeral")), |word| {
+                Ok(Box::new(word))
+            }),
+        &_ => Err(anyhow!("Wrong class")),
     }
 }
 
@@ -147,7 +156,12 @@ fn word_csv_to_verb(word_csv: WordCSV) -> Option<Verb> {
 }
 
 fn word_csv_to_adverb(word_csv: WordCSV) -> Option<Adverb> {
-    Some(Adverb::new(word_csv.word, word_csv.translation, word_csv.meaning, word_csv.example))
+    Some(Adverb::new(
+        word_csv.word,
+        word_csv.translation,
+        word_csv.meaning,
+        word_csv.example,
+    ))
 }
 
 fn word_csv_to_personal_pronoun(word_csv: WordCSV) -> Option<PersonalPronoun> {
@@ -166,7 +180,13 @@ fn word_csv_to_personal_pronoun(word_csv: WordCSV) -> Option<PersonalPronoun> {
 
 fn word_csv_to_numeral(word_csv: WordCSV) -> Option<Numeral> {
     if let Some(ordinal) = word_csv.ordinal {
-        Some(Numeral::new(word_csv.word, word_csv.translation, word_csv.meaning, word_csv.example, ordinal))
+        Some(Numeral::new(
+            word_csv.word,
+            word_csv.translation,
+            word_csv.meaning,
+            word_csv.example,
+            ordinal,
+        ))
     } else {
         None
     }

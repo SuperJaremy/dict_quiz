@@ -38,24 +38,27 @@ use crate::word::word_csv;
 use crate::word::word_csv::WordCSV;
 use std::cmp;
 
-use std::error::Error;
 use std::path::Path;
 
+use anyhow::{Context, Result};
 
-pub mod word;
 pub mod quiz;
+pub mod word;
 
 /// Read the words from the specified csv dictionary and
 /// runs the quiz.
-pub fn run(dict: &Path) -> Result<(), Box<dyn Error>> {
-    let dict = read_csv(dict)?;
+pub fn run(dict: &Path) -> Result<()> {
+    let dict = read_csv(dict)
+        .with_context(|| format!("Failed to read csv dictionary {}", dict.to_string_lossy()))?;
     let view = Console::new();
 
     loop {
-        let config = view.build_config()?;
+        let config = view
+            .build_config()
+            .with_context(|| "Failed building configuration for a quiz")?;
 
         let quiz = Quiz::new(config, &dict, &view);
-        quiz.start()?;
+        quiz.start().with_context(|| "Failed starting a quiz")?;
 
         if !view.try_again()? {
             break;
@@ -65,7 +68,7 @@ pub fn run(dict: &Path) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn read_csv(dict_path: &Path) -> Result<Vec<Box<dyn Pick>>, Box<dyn Error>> {
+fn read_csv(dict_path: &Path) -> Result<Vec<Box<dyn Pick>>> {
     let mut rdr = csv::Reader::from_path(dict_path)?;
     let mut res = Vec::new();
 
@@ -89,4 +92,3 @@ fn read_csv(dict_path: &Path) -> Result<Vec<Box<dyn Pick>>, Box<dyn Error>> {
 
     Ok(res)
 }
-

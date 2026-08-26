@@ -2,7 +2,8 @@
 
 use std::io;
 
-use std::error::Error;
+use anyhow::Context;
+use anyhow::Result;
 
 use crate::quiz::QuizConfig;
 use crate::quiz::QuizResults;
@@ -22,15 +23,17 @@ impl Default for Console {
 }
 
 impl Console {
-    fn clear_screen() -> Result<(), Box<dyn Error>> {
-        clearscreen::clear()?;
+    fn clear_screen() -> Result<()> {
+        clearscreen::clear().with_context(|| "Failed to clear terminal screen")?;
         Ok(())
     }
 
-    fn wait_for_input() -> Result<(), Box<dyn Error>> {
+    fn wait_for_input() -> Result<()> {
         println!("Type ENTER to continue");
         let mut buf = String::new();
-        io::stdin().read_line(&mut buf)?;
+        io::stdin()
+            .read_line(&mut buf)
+            .with_context(|| "Failed to read user's input from terminal")?;
 
         Ok(())
     }
@@ -50,7 +53,7 @@ impl Console {
 }
 
 impl View for Console {
-    fn ask_question(&self, question: &Question) -> Result<bool, Box<dyn Error>> {
+    fn ask_question(&self, question: &Question) -> Result<bool> {
         Console::clear_screen()?;
         println!("Word: {}", question.get_base());
         println!("Meaning: {}", question.get_meaning());
@@ -58,7 +61,9 @@ impl View for Console {
         println!("Question: {}", question.get_question());
 
         let mut answ = String::new();
-        io::stdin().read_line(&mut answ)?;
+        io::stdin()
+            .read_line(&mut answ)
+            .with_context(|| "Failed to read user's answer")?;
 
         let res = if !question.check_answer(&answ) {
             println!("❌Incorrect. The correct answer is");
@@ -74,7 +79,7 @@ impl View for Console {
         Ok(res)
     }
 
-    fn build_config(&self) -> Result<QuizConfig, Box<dyn Error>> {
+    fn build_config(&self) -> Result<QuizConfig> {
         Console::clear_screen()?;
         println!("How many questions you'd like in this quiz?");
 
@@ -82,7 +87,9 @@ impl View for Console {
 
         while number.is_none() {
             let mut n = String::new();
-            io::stdin().read_line(&mut n)?;
+            io::stdin()
+                .read_line(&mut n)
+                .with_context(|| "Failed to read question number")?;
             let n: usize = match n.trim().parse() {
                 Ok(num) => num,
                 Err(_) => {
@@ -100,11 +107,13 @@ impl View for Console {
 
         while level.is_none() {
             let mut n = String::new();
-            io::stdin().read_line(&mut n)?;
+            io::stdin()
+                .read_line(&mut n)
+                .with_context(|| "Failed to read difficulty number")?;
             let n: i32 = match n.trim().parse() {
                 Ok(level) if level < 5 && level > 0 => level,
                 _ => {
-                    println!("Type in a number, 0 < number < 5");
+                    println!("Type in an integer number, 0 < number < 5");
                     continue;
                 }
             };
@@ -125,7 +134,7 @@ impl View for Console {
         })
     }
 
-    fn display_results(&self, results: &QuizResults) -> Result<(), Box<dyn Error>> {
+    fn display_results(&self, results: &QuizResults) -> Result<()> {
         Console::clear_screen()?;
         println!("Your results:");
         let total = results.quiz.0.config.question_num;
@@ -141,6 +150,7 @@ impl View for Console {
                     print!("\t{name}: {form};");
                 }
                 println!();
+                println!();
             }
         }
 
@@ -148,12 +158,14 @@ impl View for Console {
         Ok(())
     }
 
-    fn try_again(&self) -> Result<bool, Box<dyn Error>> {
+    fn try_again(&self) -> Result<bool> {
         Console::clear_screen()?;
 
         println!("Try again? [y/n]");
         let mut input = String::new();
-        io::stdin().read_line(&mut input)?;
+        io::stdin()
+            .read_line(&mut input)
+            .with_context(|| "Failed to read user's reply")?;
 
         Ok(input.trim().to_lowercase() == "y")
     }
