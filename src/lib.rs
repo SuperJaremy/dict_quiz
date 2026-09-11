@@ -41,6 +41,7 @@ use std::cmp;
 use std::path::Path;
 
 use anyhow::{Context, Result};
+use log::{info, warn};
 
 pub mod quiz;
 pub mod word;
@@ -72,18 +73,19 @@ fn read_csv(dict_path: &Path) -> Result<Vec<Box<dyn Pick>>> {
     let mut rdr = csv::Reader::from_path(dict_path)?;
     let mut res = Vec::new();
 
+    info!("Reading words from file {:#?}", dict_path);
     for (line, result) in rdr.deserialize().enumerate() {
         let record: WordCSV = match result {
             Ok(word) => word,
-            Err(_) => {
-                eprintln!("Warning! Incorrect entry in csv file in line {line}");
+            Err(e) => {
+                warn!("Warning! Incorrect entry in csv file in line {line}, {}", e);
                 continue;
             }
         };
         let word = match word_csv::word_csv_to_word(record) {
             Ok(w) => w,
             Err(e) => {
-                eprintln!("Warning! Incorrect entry in csv file in line {line}, {}", e);
+                warn!("Warning! Incorrect entry in csv file in line {line}, {}", e);
                 continue;
             }
         };

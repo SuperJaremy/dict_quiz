@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use anyhow::Result;
+use log::info;
 
 use crate::Pick;
 use crate::cmp;
@@ -56,6 +57,9 @@ impl<'a> Quiz<'_> {
         config.question_num = questions_num;
 
         let mut rng = SmallRng::from_os_rng();
+
+        info!("Creating quiz with {} questions", questions_num);
+
         let questions = dict[..]
             .choose_multiple(&mut rng, questions_num)
             .map(|word| {
@@ -63,6 +67,9 @@ impl<'a> Quiz<'_> {
                 (w, w.get_question(&config.category))
             })
             .collect();
+
+        info!("Quiz created");
+
         Quiz(Rc::new(QuizData {
             questions,
             config,
@@ -74,6 +81,8 @@ impl<'a> Quiz<'_> {
         let mut wrongs = Vec::new();
         let mut correct: u32 = 0;
 
+        info!("Starting quiz");
+
         for (w, q) in &self.0.questions {
             if self.0.view.ask_question(q)? {
                 correct += 1;
@@ -82,6 +91,8 @@ impl<'a> Quiz<'_> {
             }
         }
 
+        info!("Quiz finished");
+
         let result = QuizResults {
             quiz: Quiz(self.0.clone()),
             correct_num: correct,
@@ -89,6 +100,8 @@ impl<'a> Quiz<'_> {
         };
 
         self.0.view.display_results(&result)?;
+
+        info!("Results displayed");
 
         Ok(())
     }

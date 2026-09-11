@@ -486,7 +486,7 @@ where
         arr.iter()
             .filter(|template| category.apply(&template.property))
             .choose(&mut rand::rng())
-            .expect("Empty question array")
+            .expect("question array should not be empty")
     }
 
     fn question_from_template(&self, forms: &T) -> Question {
