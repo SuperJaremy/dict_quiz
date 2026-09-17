@@ -7,6 +7,7 @@ use anyhow::Result;
 
 use crate::quiz::QuizConfig;
 use crate::quiz::QuizResults;
+use crate::quiz::QuizState;
 use crate::quiz::view::View;
 use crate::word::question::Question;
 use crate::word::question::categories::CATEGORY_ADVANCED;
@@ -53,8 +54,9 @@ impl Console {
 }
 
 impl View for Console {
-    fn ask_question(&self, question: &Question) -> Result<bool> {
+    fn ask_question(&self, question: &Question, state: QuizState) -> Result<bool> {
         Console::clear_screen()?;
+        println!("[{}/{}]", state.current_q, state.num_q);
         println!("Word: {}", question.get_base());
         println!("Meaning: {}", question.get_meaning());
         println!("Example: {}", question.get_example());

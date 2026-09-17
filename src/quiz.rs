@@ -35,9 +35,13 @@ impl QuizConfig {
     }
 }
 
+pub struct QuizState {
+    current_q: usize,
+    num_q: usize,
+}
+
 /// Quiz's end result to display
 pub struct QuizResults<'a> {
-    // quiz: &'a Quiz<'a>,
     quiz: Quiz<'a>,
     correct_num: u32,
     wrong_answers: Vec<&'a dyn Pick>,
@@ -83,8 +87,14 @@ impl<'a> Quiz<'_> {
 
         info!("Starting quiz");
 
-        for (w, q) in &self.0.questions {
-            if self.0.view.ask_question(q)? {
+        for (i, (w, q)) in (&self.0.questions).iter().enumerate() {
+            if self.0.view.ask_question(
+                q,
+                QuizState {
+                    current_q: (i + 1),
+                    num_q: self.0.config.question_num,
+                },
+            )? {
                 correct += 1;
             } else {
                 wrongs.push(*w);

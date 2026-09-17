@@ -2,12 +2,12 @@
 
 use anyhow::Result;
 
-use crate::{quiz::QuizConfig, quiz::QuizResults, word::question::Question};
+use crate::{quiz::{QuizConfig, QuizResults, QuizState}, word::question::Question};
 
 pub trait View {
     /// Display the contents of the question, read the user's input and
     /// compare it with the correct answer.
-    fn ask_question(&self, question: &Question) -> Result<bool>;
+    fn ask_question(&self, question: &Question, state: QuizState) -> Result<bool>;
     /// Prompt the user to set the quiz's parameters.
     fn build_config(&self) -> Result<QuizConfig>;
     /// Display the end results of the current quiz.
